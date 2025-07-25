@@ -1,0 +1,6 @@
+[submodule "cef"]
+	path = cef
+	url = https://github.com/chromiumembedded/cef
+[submodule "imgui"]
+	path = imgui
+	url = https://github.com/ocornut/imgui
