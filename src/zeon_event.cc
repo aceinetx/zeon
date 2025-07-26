@@ -84,7 +84,8 @@ void z::Zeon::ProcessEvent(SDL_Event& event) {
 			}
 
 			CefMouseEvent cef_event;
-			browser->GetHost()->SendMouseWheelEvent(cef_event, delta_x * 50, delta_y * 50);
+			browser->GetHost()->SendMouseWheelEvent(cef_event, delta_x * scrollSpeed * 10,
+																							delta_y * scrollSpeed * 10);
 		}
 	}
 }

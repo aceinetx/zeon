@@ -11,6 +11,9 @@
 namespace z {
 extern int g_argc;
 extern char** g_argv;
+// clang-format off
+static constexpr const char* urlRegex = "/(?:http[s]?:\\/\\/.)?(?:www\\.)?[-a-zA-Z0-9@%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b(?:[-a-zA-Z0-9@:%_\\+.~#?&\\/\\/=]*)/gm";
+// clang-format on
 
 class Zeon {
 private:
@@ -29,6 +32,10 @@ public:
 		BS_LOADING,
 		BS_READY,
 	} BrowserState = BS_READY;
+
+	float scrollSpeed = 5.0f;
+
+	char ui_url[65535];
 
 private:
 	void InitAssets();
