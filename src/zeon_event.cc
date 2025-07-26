@@ -35,6 +35,11 @@ void z::Zeon::ProcessEvent(SDL_Event& event) {
 			event.window.windowID == SDL_GetWindowID(window)) {
 		browser->GetHost()->CloseBrowser(false);
 	}
+	if (event.type == SDL_EVENT_WINDOW_RESIZED) {
+		int w, h;
+		SDL_GetWindowSize(window, &w, &h);
+		renderHandler->resize(w, h - ZEON_TOPBAR_HEIGHT);
+	}
 
 	if (!io.WantCaptureKeyboard) {
 		if ((event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP)) {

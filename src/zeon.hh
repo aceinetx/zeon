@@ -17,11 +17,12 @@ private:
 	SDL_Renderer* renderer;
 	SDL_Window* window;
 
+public:
 	CefRefPtr<CefBrowser> browser;
 	CefRefPtr<BrowserClient> browserClient;
 	CefRefPtr<RenderHandler> renderHandler;
+	CefRefPtr<CefCookieManager> cookieManager;
 
-public:
 	CefMainArgs cef_args;
 
 	enum {

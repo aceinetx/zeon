@@ -4,7 +4,7 @@
 
 z::RenderHandler::RenderHandler(SDL_Renderer* renderer, int w, int h)
 		: width(w), height(h), renderer(renderer) {
-	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_STREAMING, w, h);
+	resize(w, h);
 }
 
 z::RenderHandler::~RenderHandler() {
@@ -21,6 +21,7 @@ void z::RenderHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect)
 
 void z::RenderHandler::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type,
 															 const RectList& dirtyRects, const void* buffer, int w, int h) {
+	std::lock_guard<std::recursive_mutex> lock(texture_mutex);
 	if (texture) {
 		unsigned char* texture_data = NULL;
 		int texture_pitch = 0;
@@ -35,17 +36,21 @@ void z::RenderHandler::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType t
 }
 
 void z::RenderHandler::resize(int w, int h) {
+	std::lock_guard<std::recursive_mutex> lock(texture_mutex);
 	if (texture) {
 		SDL_DestroyTexture(texture);
+		texture = nullptr;
 	}
 
-	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_STREAMING, w, h);
 	width = w;
 	height = h;
+	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_STREAMING, w, h);
+
 	std::cout << "z::RenderHandler::resize: success\n";
 }
 
 void z::RenderHandler::render() {
+	std::lock_guard<std::recursive_mutex> lock(texture_mutex);
 	SDL_FRect destRect = {0, ZEON_TOPBAR_HEIGHT, (float)width,
 												(float)height}; // Destination rectangle
 	SDL_RenderTexture(renderer, texture, NULL, &destRect);

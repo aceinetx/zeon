@@ -2,6 +2,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_render.h>
 #include <cef_app.h>
+#include <mutex>
 #include <vulkan/vulkan.h>
 
 namespace z {
@@ -25,6 +26,7 @@ private:
 	int height;
 	SDL_Renderer* renderer;
 	SDL_Texture* texture = nullptr;
+	std::recursive_mutex texture_mutex;
 
 	IMPLEMENT_REFCOUNTING(RenderHandler);
 };
