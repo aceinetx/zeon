@@ -7,6 +7,7 @@
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
 #include <stdlib.h>
+#include <vector>
 
 namespace z {
 extern int g_argc;
@@ -21,10 +22,15 @@ private:
 	SDL_Window* window;
 
 public:
-	CefRefPtr<CefBrowser> browser;
-	CefRefPtr<BrowserClient> browserClient;
-	CefRefPtr<RenderHandler> renderHandler;
+	std::vector<CefRefPtr<CefBrowser>> browsers;
+	std::vector<CefRefPtr<BrowserClient>> browserClients;
+	std::vector<CefRefPtr<RenderHandler>> renderHandlers;
 	CefRefPtr<CefCookieManager> cookieManager;
+	int active_tab = 0;
+	// Tab management
+	int OpenTab(const std::string& url);
+	void CloseTab(int idx);
+	void SwitchTab(int idx);
 
 	CefMainArgs cef_args;
 

@@ -1,16 +1,16 @@
 #include "imgui.h"
 #include "internal/cef_linux.h"
 #include "internal/cef_types_wrappers.h"
-#include "uri.hh"
 #include "zeon.hh"
 #include "zeondefs.hh"
 #include <cef_parser.h>
-#include <regex>
+#include <format>
 
 using namespace z;
 
 static bool g_show_demo_window = false;
 static bool g_show_settings = false;
+static bool g_show_tabs = true;
 
 static void DrawState(int state) {
 	static auto& io = ImGui::GetIO();
@@ -23,7 +23,7 @@ static void DrawState(int state) {
 									 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 	switch (state) {
 	case Zeon::BS_LOADING: {
-		std::string url = g_zeon->browser->GetFocusedFrame()->GetURL().ToString();
+		std::string url = g_zeon->browsers[g_zeon->active_tab]->GetFocusedFrame()->GetURL().ToString();
 		ImGui::Text("%s", url.c_str());
 	} break;
 	case Zeon::BS_READY:
@@ -47,21 +47,25 @@ static void DrawTopBar() {
 
 	ImGui::SameLine();
 	if (ImGui::Button("back")) {
-		g_zeon->browser->GoBack();
+		g_zeon->browsers[g_zeon->active_tab]->GoBack();
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("forward")) {
-		g_zeon->browser->GoForward();
+		g_zeon->browsers[g_zeon->active_tab]->GoForward();
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("settings")) {
 		g_show_settings = !g_show_settings;
 	}
+	ImGui::SameLine();
+	if (ImGui::Button("tabs")) {
+		g_show_tabs = !g_show_tabs;
+	}
 
 	ImGui::SameLine();
 	if (ImGui::InputText("##url", g_zeon->ui_url, sizeof g_zeon->ui_url,
 											 ImGuiInputTextFlags_EnterReturnsTrue)) {
-		g_zeon->browser->GetFocusedFrame()->LoadURL(CefString(g_zeon->ui_url));
+		g_zeon->browsers[g_zeon->active_tab]->GetFocusedFrame()->LoadURL(CefString(g_zeon->ui_url));
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Search w/ duckduckgo")) {
@@ -69,7 +73,7 @@ static void DrawTopBar() {
 		std::string url = "duckduckgo.com/?t=h_&q=";
 		url += Zeon::encodeUrlIntoGetParameter(text);
 		url += "&ia=web";
-		g_zeon->browser->GetFocusedFrame()->LoadURL(CefString(url));
+		g_zeon->browsers[g_zeon->active_tab]->GetFocusedFrame()->LoadURL(CefString(url));
 	}
 	ImGui::End();
 }
@@ -78,12 +82,49 @@ static void DrawSettings() {
 	ImGui::SetNextWindowPos({0, ZEON_TOPBAR_HEIGHT});
 	ImGui::SetNextWindowSize({350, 200});
 	ImGui::Begin("settings", nullptr,
-							 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
-									 ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoCollapse);
+							 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
+									 ImGuiWindowFlags_NoCollapse);
 	ImGui::SliderFloat("Scroll speed", &g_zeon->scrollSpeed, 1.0f, 20.0f);
 	if (ImGui::Button("Show devtools")) {
-		g_zeon->browser->GetHost()->ShowDevTools(CefWindowInfo(), nullptr, CefBrowserSettings(),
-																						 CefPoint());
+		g_zeon->browsers[g_zeon->active_tab]->GetHost()->ShowDevTools(CefWindowInfo(), nullptr,
+																																	CefBrowserSettings(), CefPoint());
+	}
+	ImGui::End();
+}
+
+static void UpdateURL() {
+	strncpy(z::g_zeon->ui_url,
+					g_zeon->browsers[g_zeon->active_tab]->GetMainFrame()->GetURL().ToString().c_str(),
+					sizeof z::g_zeon->ui_url);
+}
+
+static void DrawTabs() {
+	ImGui::SetNextWindowPos({0, ZEON_TOPBAR_HEIGHT}, ImGuiCond_Once);
+	ImGui::SetNextWindowSize({0, 200});
+	ImGui::Begin("tabs", nullptr,
+							 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
+									 ImGuiWindowFlags_NoCollapse);
+	int i = 0;
+	for (int i = 0; i < g_zeon->browsers.size(); i++) {
+		auto& browser = g_zeon->browsers[i];
+
+		std::string url = browser->GetMainFrame()->GetURL().ToString();
+		if (ImGui::Button(std::format("{}##tab{}", url, i).c_str())) {
+			g_zeon->active_tab = i;
+			UpdateURL();
+		}
+		if (g_zeon->browsers.size() > 1) {
+			ImGui::SameLine();
+			if (ImGui::Button(std::format("x##tab{}", i).c_str())) {
+				g_zeon->CloseTab(i);
+				UpdateURL();
+				break;
+			}
+		}
+	}
+	if (ImGui::Button("+")) {
+		std::string start_url = "file://" + std::string(SDL_GetBasePath()) + "/assets/main.html";
+		g_zeon->OpenTab(start_url);
 	}
 	ImGui::End();
 }
@@ -95,4 +136,6 @@ void Zeon::Draw() {
 		ImGui::ShowDemoWindow(nullptr);
 	if (g_show_settings)
 		DrawSettings();
+	if (g_show_tabs)
+		DrawTabs();
 }

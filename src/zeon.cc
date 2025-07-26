@@ -17,7 +17,48 @@ z::Zeon::Zeon() {};
 
 z::Zeon::~Zeon() = default;
 
-int z::Zeon::Zeon::Init() {
+int z::Zeon::OpenTab(const std::string& url) {
+	auto handler = new RenderHandler(renderer, 1, 1);
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
+	handler->resize(w, h - ZEON_TOPBAR_HEIGHT);
+	renderHandlers.push_back(handler);
+	auto client = new BrowserClient(handler);
+	browserClients.push_back(client);
+	CefWindowInfo window_info;
+	CefBrowserSettings browserSettings;
+	window_info.SetAsWindowless(kNullWindowHandle);
+	window_info.windowless_rendering_enabled = true;
+	browserSettings.background_color = 0xff;
+	browserSettings.windowless_frame_rate = 60;
+	auto browser = CefBrowserHost::CreateBrowserSync(window_info, client, url, browserSettings,
+																									 nullptr, CefRequestContext::GetGlobalContext());
+	browsers.push_back(browser);
+	browser->GetMainFrame()->AddRef();
+	active_tab = browsers.size() - 1;
+	return active_tab;
+}
+
+void z::Zeon::CloseTab(int idx) {
+	if (idx < 0 || idx >= (int)browsers.size())
+		return;
+	browsers[idx]->GetHost()->CloseBrowser(true);
+	browsers.erase(browsers.begin() + idx);
+	browserClients.erase(browserClients.begin() + idx);
+	renderHandlers.erase(renderHandlers.begin() + idx);
+	if (active_tab >= (int)browsers.size())
+		active_tab = browsers.size() - 1;
+	if (active_tab < 0 && !browsers.empty())
+		active_tab = 0;
+}
+
+void z::Zeon::SwitchTab(int idx) {
+	if (idx < 0 || idx >= (int)browsers.size())
+		return;
+	active_tab = idx;
+}
+
+int z::Zeon::Init() {
 	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
 		printf("Error: SDL_Init(): %s\n", SDL_GetError());
 		return -1;
@@ -85,28 +126,10 @@ int z::Zeon::Zeon::Init() {
 		return -1;
 	}
 
-	{
-		renderHandler = new RenderHandler(renderer, 1, 1);
-		int w, h;
-		SDL_GetWindowSize(window, &w, &h);
-		renderHandler->resize(w, h - ZEON_TOPBAR_HEIGHT);
-	}
-
-	{
-		CefWindowInfo window_info;
-		CefBrowserSettings browserSettings;
-		window_info.SetAsWindowless(kNullWindowHandle);
-		window_info.windowless_rendering_enabled = true;
-		browserSettings.background_color = 0xff; // allows for transparency
-		browserSettings.windowless_frame_rate = 60;
-
-		browserClient = new BrowserClient(renderHandler);
-
-		browser = CefBrowserHost::CreateBrowserSync(
-				window_info, browserClient.get(),
-				"file://" + std::string(SDL_GetBasePath()) + "/assets/main.html", browserSettings, nullptr,
-				CefRequestContext::GetGlobalContext());
-	}
+	// Remove old single browser/client/handler creation
+	// Instead, open the first tab
+	std::string start_url = "file://" + std::string(SDL_GetBasePath()) + "/assets/main.html";
+	OpenTab(start_url);
 	return 0;
 }
 
@@ -117,12 +140,10 @@ void z::Zeon::InitAssets() {
 }
 
 void z::Zeon::Cleanup() {
-	browser = nullptr;
-	browserClient = nullptr;
-	renderHandler = nullptr;
-
+	browsers.clear();
+	browserClients.clear();
+	renderHandlers.clear();
 	CefShutdown();
-
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
@@ -135,7 +156,7 @@ void z::Zeon::Run() {
 
 	// Main loop
 	bool done = false;
-	while (!browserClient->closeAllowed() && !done) {
+	while (!browserClients.empty() && !browserClients[active_tab]->closeAllowed() && !done) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
 			ProcessEvent(event);
@@ -160,7 +181,7 @@ void z::Zeon::Run() {
 																clear_color.w);
 		CefDoMessageLoopWork();
 		SDL_RenderClear(renderer);
-		renderHandler->render();
+		renderHandlers[active_tab]->render();
 		ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
 		SDL_RenderPresent(renderer);
 	}

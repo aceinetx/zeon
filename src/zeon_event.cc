@@ -29,21 +29,21 @@ void z::Zeon::ProcessEvent(SDL_Event& event) {
 	ImGui_ImplSDL3_ProcessEvent(&event);
 
 	if (event.type == SDL_EVENT_QUIT) {
-		browser->GetHost()->CloseBrowser(false);
+		browsers[active_tab]->GetHost()->CloseBrowser(false);
 	}
 	if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED &&
 			event.window.windowID == SDL_GetWindowID(window)) {
-		browser->GetHost()->CloseBrowser(false);
+		browsers[active_tab]->GetHost()->CloseBrowser(false);
 	}
 	if (event.type == SDL_EVENT_WINDOW_RESIZED) {
 		int w, h;
 		SDL_GetWindowSize(window, &w, &h);
-		renderHandler->resize(w, h - ZEON_TOPBAR_HEIGHT);
+		renderHandlers[active_tab]->resize(w, h - ZEON_TOPBAR_HEIGHT);
 	}
 
 	if (!io.WantCaptureKeyboard) {
 		if ((event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP)) {
-			handleKeyEvent(event, browser);
+			handleKeyEvent(event, browsers[active_tab]);
 			std::cout << "Send key ev\n";
 		}
 	}
@@ -53,7 +53,7 @@ void z::Zeon::ProcessEvent(SDL_Event& event) {
 			cef_event.x = event.button.x;
 			cef_event.y = event.button.y - ZEON_TOPBAR_HEIGHT;
 
-			browser->GetHost()->SendMouseClickEvent(cef_event, translateMouseButton(event.button), true,
+			browsers[active_tab]->GetHost()->SendMouseClickEvent(cef_event, translateMouseButton(event.button), true,
 																							1);
 			std::cout << "Send mouse button up\n";
 		}
@@ -62,7 +62,7 @@ void z::Zeon::ProcessEvent(SDL_Event& event) {
 			cef_event.x = event.button.x;
 			cef_event.y = event.button.y - ZEON_TOPBAR_HEIGHT;
 
-			browser->GetHost()->SendMouseClickEvent(cef_event, translateMouseButton(event.button), false,
+			browsers[active_tab]->GetHost()->SendMouseClickEvent(cef_event, translateMouseButton(event.button), false,
 																							1);
 			std::cout << "Send mouse button down\n";
 		}
@@ -71,7 +71,7 @@ void z::Zeon::ProcessEvent(SDL_Event& event) {
 			cef_event.x = event.motion.x;
 			cef_event.y = event.motion.y - ZEON_TOPBAR_HEIGHT;
 
-			browser->GetHost()->SendMouseMoveEvent(cef_event, false);
+			browsers[active_tab]->GetHost()->SendMouseMoveEvent(cef_event, false);
 		}
 		if (event.type == SDL_EVENT_MOUSE_WHEEL) {
 			int delta_x = event.wheel.x;
@@ -84,7 +84,7 @@ void z::Zeon::ProcessEvent(SDL_Event& event) {
 			}
 
 			CefMouseEvent cef_event;
-			browser->GetHost()->SendMouseWheelEvent(cef_event, delta_x * scrollSpeed * 10,
+			browsers[active_tab]->GetHost()->SendMouseWheelEvent(cef_event, delta_x * scrollSpeed * 10,
 																							delta_y * scrollSpeed * 10);
 		}
 	}
