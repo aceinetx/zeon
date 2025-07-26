@@ -20,9 +20,20 @@ void z::Zeon::SetupStyle() {
 	colors[ImGuiCol_TabHovered] = rgba(85, 85, 85, 255);
 	colors[ImGuiCol_Tab] = rgba(50, 50, 50, 255);
 
+	colors[ImGuiCol_Button] = rgba(177, 188, 201, 102);
+	colors[ImGuiCol_ButtonHovered] = rgba(187, 198, 211, 122);
+	colors[ImGuiCol_ButtonActive] = rgba(197, 208, 221, 142);
+
 	colors[ImGuiCol_Header] = rgba(139, 139, 139, 79);
-	colors[ImGuiCol_HeaderHovered] = rgba(149, 149, 149, 79);
-	colors[ImGuiCol_HeaderActive] = rgba(159, 159, 159, 79);
+	colors[ImGuiCol_HeaderHovered] = rgba(149, 149, 149, 99);
+	colors[ImGuiCol_HeaderActive] = rgba(159, 159, 159, 119);
+
+	colors[ImGuiCol_SliderGrab] = rgba(185, 185, 185, 255);
+	colors[ImGuiCol_SliderGrabActive] = rgba(195, 195, 195, 255);
+
+	colors[ImGuiCol_ResizeGrip] = rgba(185, 185, 185, 70);
+	colors[ImGuiCol_ResizeGripHovered] = rgba(185, 185, 185, 110);
+	colors[ImGuiCol_ResizeGripActive] = rgba(185, 185, 185, 150);
 
 	colors[ImGuiCol_CheckMark] = rgba(150, 150, 150, 255);
 }
