@@ -26,7 +26,7 @@ static void DrawState(int state) {
 	ImGui::End();
 }
 
-static void DrawTopBar(CefBrowser* browser) {
+static void DrawTopBar() {
 	static auto& io = ImGui::GetIO();
 	ImGui::SetNextWindowPos({0, -1});
 	ImGui::SetNextWindowSize({io.DisplaySize.x, ZEON_TOPBAR_HEIGHT});
@@ -40,15 +40,24 @@ static void DrawTopBar(CefBrowser* browser) {
 	ImGui::SetWindowFontScale(1.0f);
 
 	ImGui::SameLine();
+	if (ImGui::Button("back")) {
+		g_zeon->browser->GoBack();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("forward")) {
+		g_zeon->browser->GoForward();
+	}
+
+	ImGui::SameLine();
 	if (ImGui::InputText("##url", url, sizeof url, ImGuiInputTextFlags_EnterReturnsTrue)) {
-		browser->GetMainFrame()->LoadURL(CefString(url));
+		g_zeon->browser->GetMainFrame()->LoadURL(CefString(url));
 	}
 	ImGui::SameLine();
 	ImGui::End();
 }
 
 void Zeon::Draw() {
-	DrawTopBar(browser.get());
+	DrawTopBar();
 	DrawState(BrowserState);
 	if (show_demo_window)
 		ImGui::ShowDemoWindow(nullptr);
