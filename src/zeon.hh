@@ -44,6 +44,8 @@ private:
 	void SetupStyle();
 
 public:
+	static std::string encodeUrlIntoGetParameter(const std::string& value);
+
 	Zeon();
 	int Init();
 	void Cleanup();

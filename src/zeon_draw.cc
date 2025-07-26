@@ -62,19 +62,7 @@ static void DrawTopBar() {
 			// search
 			std::string text = std::string(g_zeon->ui_url);
 			std::string url = "duckduckgo.com/?t=h_&q=";
-			for (char c : text) {
-				switch (c) {
-				case ' ':
-					url += '+';
-					break;
-				case ':':
-					url += "%3A";
-					break;
-				default:
-					url += c;
-					break;
-				}
-			}
+			url += Zeon::encodeUrlIntoGetParameter(text);
 			url += "&ia=web";
 			g_zeon->browser->GetFocusedFrame()->LoadURL(CefString(url));
 		}

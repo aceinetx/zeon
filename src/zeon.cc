@@ -4,8 +4,14 @@
 #include "zeondefs.hh"
 #include <SDL3/SDL.h>
 #include <cef_app.h>
+#include <cef_parser.h>
+#include <iomanip>
 #include <iostream>
 #include <stdio.h>
+
+std::string z::Zeon::encodeUrlIntoGetParameter(const std::string& value) {
+	return CefURIEncode(CefString(value), true);
+}
 
 z::Zeon::Zeon() {};
 
