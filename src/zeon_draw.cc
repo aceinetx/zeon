@@ -10,7 +10,7 @@ using namespace z;
 
 static bool g_show_demo_window = false;
 static bool g_show_settings = false;
-static bool g_show_tabs = true;
+static bool g_show_tabs = false;
 
 static void DrawState(int state) {
 	static auto& io = ImGui::GetIO();

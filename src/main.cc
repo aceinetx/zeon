@@ -23,4 +23,5 @@ int main(int argc, char** argv) {
 	}
 	z::g_zeon->Run();
 	z::g_zeon->Cleanup();
+	delete z::g_zeon;
 }

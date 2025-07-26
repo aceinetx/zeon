@@ -2,6 +2,7 @@
 
 #include "browser_client.hh"
 #include "render_handler.hh"
+#include "settings_manager.hh"
 #include <cef_app.h>
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
@@ -17,6 +18,7 @@ class Zeon {
 private:
 	SDL_Renderer* renderer;
 	SDL_Window* window;
+	SettingsManager settingsManager;
 
 public:
 	std::vector<CefRefPtr<CefBrowser>> browsers;

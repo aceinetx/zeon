@@ -10,9 +10,13 @@ std::string z::Zeon::encodeUrlIntoGetParameter(const std::string& value) {
 	return CefURIEncode(CefString(value), true);
 }
 
-z::Zeon::Zeon() {};
+z::Zeon::Zeon() : settingsManager(this) {
+	settingsManager.load();
+};
 
-z::Zeon::~Zeon() = default;
+z::Zeon::~Zeon() {
+	settingsManager.save();
+};
 
 int z::Zeon::OpenTab(const std::string& url) {
 	auto handler = new RenderHandler(renderer, 1, 1);
