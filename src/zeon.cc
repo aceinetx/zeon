@@ -53,10 +53,7 @@ int z::Zeon::Zeon::Init() {
 	style.ScaleAllSizes(
 			main_scale); // Bake a fixed style scale. (until we have a solution for dynamic style scaling,
 									 // changing this requires resetting Style + calling this again)
-	style.FontScaleDpi =
-			main_scale; // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this
-									// unnecessary. We leave both here for documentation purpose)
-
+	style.FontScaleDpi = main_scale;
 	// Setup Platform/Renderer backends
 	ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
 	ImGui_ImplSDLRenderer3_Init(renderer);
@@ -87,12 +84,14 @@ int z::Zeon::Zeon::Init() {
 	}
 
 	renderHandler = new RenderHandler(renderer, io.DisplaySize.x, io.DisplaySize.y);
+	renderHandler->resize(100, 100);
 
 	{
 		CefWindowInfo window_info;
 		CefBrowserSettings browserSettings;
 		window_info.SetAsWindowless(kNullWindowHandle);
-		browserSettings.background_color = 0; // allows for transparency
+		window_info.windowless_rendering_enabled = true;
+		browserSettings.background_color = 0xff; // allows for transparency
 
 		browserClient = new BrowserClient(renderHandler);
 
@@ -158,6 +157,7 @@ void z::Zeon::Run() {
 		SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
 		SDL_SetRenderDrawColorFloat(renderer, clear_color.x, clear_color.y, clear_color.z,
 																clear_color.w);
+		CefDoMessageLoopWork();
 		SDL_RenderClear(renderer);
 		ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
 		renderHandler->render();

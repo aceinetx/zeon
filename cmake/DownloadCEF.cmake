@@ -17,7 +17,7 @@ function(DownloadCEF platform channel version download_dir)
 
   # Specify the binary distribution type and download directory.
   set(CEF_DISTRIBUTION "cef_binary_${version}_${platform}${channel_part}")
-  set(CEF_DOWNLOAD_DIR "${download_dir}")
+	set(CEF_DOWNLOAD_DIR "${download_dir}")
 
   # The location where we expect the extracted binary distribution.
   set(CEF_ROOT "${CEF_DOWNLOAD_DIR}/${CEF_DISTRIBUTION}" CACHE INTERNAL "CEF_ROOT")
@@ -52,6 +52,7 @@ function(DownloadCEF platform channel version download_dir)
       )
 
   endif()
+	set(USE_SANDBOX OFF)
 	add_subdirectory("${CEF_DOWNLOAD_DIR}/${CEF_DISTRIBUTION}")
 	file(COPY "${CEF_DOWNLOAD_DIR}/${CEF_DISTRIBUTION}/Debug/" DESTINATION "${CMAKE_BINARY_DIR}/")
 	file(COPY "${CEF_DOWNLOAD_DIR}/${CEF_DISTRIBUTION}/Resources/" DESTINATION "${CMAKE_BINARY_DIR}/")
