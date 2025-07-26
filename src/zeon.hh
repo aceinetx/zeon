@@ -27,12 +27,13 @@ public:
 	enum {
 		BS_LOADING,
 		BS_READY,
-	} BrowserState;
+	} BrowserState = BS_READY;
 
 private:
 	void InitAssets();
 	void Draw();
 	void ProcessEvent(SDL_Event& event);
+	void SetupStyle();
 
 public:
 	Zeon();

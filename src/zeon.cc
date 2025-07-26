@@ -57,6 +57,7 @@ int z::Zeon::Zeon::Init() {
 	io.LogFilename = nullptr;
 
 	InitAssets();
+	SetupStyle();
 
 	std::cout << "DEVELOPER NOTE: z::Zeon::Init() assumes CefExecuteProcess is already called\n";
 	CefSettings settings;
@@ -95,9 +96,9 @@ int z::Zeon::Zeon::Init() {
 
 		browserClient = new BrowserClient(renderHandler);
 
-		browser = CefBrowserHost::CreateBrowserSync(window_info, browserClient.get(),
-																								"https://duckduckgo.com", browserSettings, nullptr,
-																								CefRequestContext::GetGlobalContext());
+		browser =
+				CefBrowserHost::CreateBrowserSync(window_info, browserClient.get(), "", browserSettings,
+																					nullptr, CefRequestContext::GetGlobalContext());
 	}
 	return 0;
 }

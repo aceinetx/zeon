@@ -1,4 +1,5 @@
 #include "browser_client.hh"
+#include "zeon.hh"
 #include <cef_client.h>
 #include <cef_life_span_handler.h>
 #include <cef_load_handler.h>
@@ -53,6 +54,7 @@ void z::BrowserClient::OnLoadEnd(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFra
 																 int httpStatusCode) {
 	std::cout << "OnLoadEnd(" << httpStatusCode << ")" << std::endl;
 	loaded = true;
+	z::g_zeon->BrowserState = Zeon::BS_READY;
 }
 
 bool z::BrowserClient::OnLoadError(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
@@ -60,11 +62,15 @@ bool z::BrowserClient::OnLoadError(CefRefPtr<CefBrowser> browser, CefRefPtr<CefF
 																	 CefString& errorText) {
 	std::cout << "OnLoadError()" << std::endl;
 	loaded = true;
+	z::g_zeon->BrowserState = Zeon::BS_READY;
 }
 
 void z::BrowserClient::OnLoadingStateChange(CefRefPtr<CefBrowser> browser, bool isLoading,
 																						bool canGoBack, bool canGoForward) {
 	std::cout << "OnLoadingStateChange()" << std::endl;
+	if (isLoading) {
+		z::g_zeon->BrowserState = Zeon::BS_LOADING;
+	}
 }
 
 void z::BrowserClient::OnLoadStart(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame) {
