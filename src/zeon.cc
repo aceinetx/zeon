@@ -4,15 +4,8 @@
 #include <iostream>
 #include <stdio.h>
 
-void z::check_vk_result(VkResult err) {
-	if (err == VK_SUCCESS)
-		return;
-	fprintf(stderr, "[vulkan] Error: VkResult = %d\n", err);
-	if (err < 0)
-		abort();
-}
+z::Zeon::Zeon() {};
 
-z::Zeon::Zeon() = default;
 z::Zeon::~Zeon() = default;
 
 int z::Zeon::Zeon::Init() {
@@ -68,39 +61,45 @@ int z::Zeon::Zeon::Init() {
 	ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
 	ImGui_ImplSDLRenderer3_Init(renderer);
 
-	// Load Fonts
-	// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple
-	// fonts and use ImGui::PushFont()/PopFont() to select them.
-	// - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the
-	// font among multiple.
-	// - If the file cannot be loaded, the function will return a nullptr. Please handle those errors
-	// in your application (e.g. use an assertion, or display an error and quit).
-	// - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype for higher quality
-	// font rendering.
-	// - Read 'docs/FONTS.md' for more instructions and details.
-	// - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to
-	// write a double backslash \\ !
-	// - Our Emscripten build process allows embedding fonts to be accessible at runtime from the
-	// "fonts/" folder. See Makefile.emscripten for details.
-	// style.FontSizeBase = 20.0f;
-	// io.Fonts->AddFontDefault();
-	// io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf");
-	// io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf");
-	// io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf");
-	// io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf");
-	// ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf");
-	// IM_ASSERT(font != nullptr);
-
 	io.IniFilename = nullptr;
 	io.LogFilename = nullptr;
 
 	InitAssets();
+
+	std::cout << "DEVELOPER NOTE: z::Zeon::Init() assumes CefExecuteProcess is already called\n";
+	CefSettings settings;
+
 	{
-		int r = InitCef();
-		if (r != 0)
-			return r;
+		std::ostringstream ss;
+		ss << SDL_GetBasePath() << "locales/";
+		std::cout << ss.str() << std::endl;
+		CefString(&settings.locales_dir_path) = ss.str();
 	}
 
+	CefString(&settings.resources_dir_path) = SDL_GetBasePath();
+	CefString(&settings.root_cache_path) = SDL_GetBasePath();
+	settings.no_sandbox = true;
+	settings.windowless_rendering_enabled = true;
+
+	bool result = CefInitialize(cef_args, settings, nullptr, nullptr);
+	if (!result) {
+		return -1;
+	}
+
+	renderHandler = new RenderHandler(renderer, io.DisplaySize.x, io.DisplaySize.y);
+
+	{
+		CefWindowInfo window_info;
+		CefBrowserSettings browserSettings;
+		window_info.SetAsWindowless(kNullWindowHandle);
+		browserSettings.background_color = 0; // allows for transparency
+
+		browserClient = new BrowserClient(renderHandler);
+
+		browser = CefBrowserHost::CreateBrowserSync(window_info, browserClient.get(),
+																								"https://www.google.com", browserSettings, nullptr,
+																								CefRequestContext::GetGlobalContext());
+	}
 	return 0;
 }
 
@@ -108,37 +107,6 @@ void z::Zeon::InitAssets() {
 	auto& io = ImGui::GetIO();
 	ImFont* font = io.Fonts->AddFontFromFileTTF("assets/SFMonoRegular.otf");
 	IM_ASSERT(font != nullptr);
-}
-
-int z::Zeon::InitCef() {
-	CefMainArgs args;
-
-	{
-		int result = CefExecuteProcess(args, nullptr, nullptr);
-		if (result >= 0) {
-			return result;
-		} else if (result == -1) {
-		}
-	}
-
-	{
-		CefSettings settings;
-
-		{
-			std::ostringstream ss;
-			ss << SDL_GetBasePath() << "locales/";
-			std::cout << ss.str() << std::endl;
-			CefString(&settings.locales_dir_path) = ss.str();
-		}
-
-		CefString(&settings.resources_dir_path) = SDL_GetBasePath();
-
-		bool result = CefInitialize(args, settings, nullptr, nullptr);
-		if (!result) {
-			return -1;
-		}
-	}
-	return 0;
 }
 
 void z::Zeon::Cleanup() {
@@ -160,7 +128,7 @@ void z::Zeon::Run() {
 
 	// Main loop
 	bool done = false;
-	while (!done) {
+	while (!browserClient->closeAllowed() && !done) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
 			ImGui_ImplSDL3_ProcessEvent(&event);
@@ -192,6 +160,7 @@ void z::Zeon::Run() {
 																clear_color.w);
 		SDL_RenderClear(renderer);
 		ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+		renderHandler->render();
 		SDL_RenderPresent(renderer);
 	}
 }

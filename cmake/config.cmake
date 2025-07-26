@@ -3,7 +3,7 @@ include("cmake/DownloadCEF.cmake")
 
 include_directories("imgui" "imgui/backends")
 
-set(CEF_VERSION "138.0.17+gac9b751+chromium-138.0.7204.97")
+set(CEF_VERSION "138.0.33+g276ed6d+chromium-138.0.7204.169")
 set(CEF_CHANNEL "")
 
 # Determine the platform.

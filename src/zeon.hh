@@ -9,7 +9,8 @@
 #include <stdlib.h>
 
 namespace z {
-void check_vk_result(VkResult err);
+extern int g_argc;
+extern char** g_argv;
 
 class Zeon {
 private:
@@ -20,9 +21,11 @@ private:
 	CefRefPtr<BrowserClient> browserClient;
 	CefRefPtr<RenderHandler> renderHandler;
 
+public:
+	CefMainArgs cef_args;
+
 private:
 	void InitAssets();
-	int InitCef();
 	void Draw();
 
 public:
