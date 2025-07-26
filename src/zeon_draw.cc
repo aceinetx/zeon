@@ -1,4 +1,6 @@
 #include "imgui.h"
+#include "internal/cef_linux.h"
+#include "internal/cef_types_wrappers.h"
 #include "uri.hh"
 #include "zeon.hh"
 #include "zeondefs.hh"
@@ -79,6 +81,10 @@ static void DrawSettings() {
 							 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
 									 ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoCollapse);
 	ImGui::SliderFloat("Scroll speed", &g_zeon->scrollSpeed, 1.0f, 20.0f);
+	if (ImGui::Button("Show devtools")) {
+		g_zeon->browser->GetHost()->ShowDevTools(CefWindowInfo(), nullptr, CefBrowserSettings(),
+																						 CefPoint());
+	}
 	ImGui::End();
 }
 

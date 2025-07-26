@@ -102,9 +102,10 @@ int z::Zeon::Zeon::Init() {
 
 		browserClient = new BrowserClient(renderHandler);
 
-		browser =
-				CefBrowserHost::CreateBrowserSync(window_info, browserClient.get(), "", browserSettings,
-																					nullptr, CefRequestContext::GetGlobalContext());
+		browser = CefBrowserHost::CreateBrowserSync(
+				window_info, browserClient.get(),
+				"file://" + std::string(SDL_GetBasePath()) + "/assets/main.html", browserSettings, nullptr,
+				CefRequestContext::GetGlobalContext());
 	}
 	return 0;
 }

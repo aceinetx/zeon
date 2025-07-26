@@ -1,0 +1,83 @@
+<html>
+    <head>
+        <script
+            src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+            crossorigin="anonymous"
+        ></script>
+
+        <style>
+            @font-face {
+                font-family: "Font"; /* Name you want to use for the font */
+                src: url("font.otf") format("opentype"); /* Path to the font file */
+                font-weight: normal; /* Specify the weight */
+                font-style: normal; /* Specify the style */
+            }
+
+            body {
+                background-color: #101010;
+                color: white;
+                font-family: "Font", sans-serif;
+                overflow: hidden;
+            }
+            .content {
+                position: relative;
+                height: 100vh;
+            }
+            .center {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 48%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 99%;
+                align-items: center;
+                justify-content: center;
+                background-color: #202020;
+                border-radius: 10px;
+                height: 95%;
+            }
+            input {
+                background-color: #303030;
+                border-radius: 10px;
+                border-style: solid;
+                border-width: 1px;
+                border-color: #505050;
+                color: white;
+                font-family: "Font", sans-serif;
+            }
+            button {
+                background-color: #303030;
+                border-radius: 10px;
+                border-style: solid;
+                border-width: 1px;
+                border-color: #505050;
+                color: white;
+                font-family: "Font", sans-serif;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="content">
+            <div class="center">
+                <h1>zeon</h1>
+                <input type="text" id="url" />
+                <br />
+                <div>
+                    <button id="visit">visit</button>
+                    <button id="search">search w/ duckduckgo</button>
+                </div>
+                <br />
+            </div>
+        </div>
+
+        <script>
+            $("#visit").click(function () {
+                window.location.href = $("#url").val();
+                console.log($("#url").val());
+            });
+        </script>
+    </body>
+</html>
