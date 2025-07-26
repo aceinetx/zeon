@@ -13,6 +13,8 @@
 namespace z {
 extern int g_argc;
 extern char** g_argv;
+extern bool g_show_settings;
+extern bool g_show_demo_window;
 
 class Zeon {
 private:
@@ -60,8 +62,8 @@ private:
 
 	void DrawState();
 	void DrawTopBar();
+	void DrawTabsBar();
 	void DrawSettings();
-	void DrawTabs();
 	void Draw();
 
 	void ProcessEvent(SDL_Event& event);

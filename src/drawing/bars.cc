@@ -1,0 +1,84 @@
+#include "../zeon.hh"
+#include "../zeondefs.hh"
+#include <format>
+
+using namespace z;
+
+static void UpdateURL() {
+	strncpy(z::g_zeon->ui_url,
+					g_zeon->browsers[g_zeon->active_tab]->GetMainFrame()->GetURL().ToString().c_str(),
+					sizeof z::g_zeon->ui_url);
+}
+
+void Zeon::DrawTopBar() {
+	static auto& io = ImGui::GetIO();
+	ImGui::SetNextWindowPos({0, 0});
+	ImGui::SetNextWindowSize({io.DisplaySize.x, ZEON_TOPBAR_HEIGHT / 2});
+
+	ImGui::Begin("zeon", nullptr,
+							 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
+									 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+	ImGui::SetWindowFontScale(1.2f);
+	ImGui::Text("zeon");
+	ImGui::SetWindowFontScale(1.0f);
+
+	ImGui::SameLine();
+	if (ImGui::Button("back")) {
+		browsers[active_tab]->GoBack();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("forward")) {
+		browsers[active_tab]->GoForward();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("settings")) {
+		g_show_settings = !g_show_settings;
+	}
+
+	ImGui::SameLine();
+	if (ImGui::InputText("##url", ui_url, sizeof ui_url, ImGuiInputTextFlags_EnterReturnsTrue)) {
+		browsers[active_tab]->GetMainFrame()->LoadURL(CefString(ui_url));
+	}
+	ImGui::SameLine();
+	ImGui::End();
+}
+
+void Zeon::DrawTabsBar() {
+	static auto& io = ImGui::GetIO();
+	ImGui::SetNextWindowPos({0, ZEON_TOPBAR_HEIGHT / 2});
+	ImGui::SetNextWindowSize({io.DisplaySize.x, ZEON_TOPBAR_HEIGHT / 2});
+
+	ImGui::Begin("tabs_bar", nullptr,
+							 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
+									 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+	for (int i = 0; i < browsers.size(); i++) {
+		auto& browser = browsers[i];
+
+		std::string tab_label;
+		CefRefPtr<CefNavigationEntry> entry = browser->GetHost()->GetVisibleNavigationEntry();
+		if (entry && entry->IsValid()) {
+			tab_label = entry->GetTitle().ToString();
+		}
+		if (tab_label.empty()) {
+			tab_label = browser->GetMainFrame()->GetURL().ToString();
+		}
+		if (ImGui::Button(std::format("{}##tab{}", tab_label, i).c_str())) {
+			active_tab = i;
+			UpdateURL();
+		}
+		if (browsers.size() > 1) {
+			ImGui::SameLine();
+			if (ImGui::Button(std::format("x##tab{}", i).c_str())) {
+				CloseTab(i);
+				UpdateURL();
+				break;
+			}
+		}
+		ImGui::SameLine();
+	}
+	if (ImGui::Button("+")) {
+		OpenTab(searchEngines[currentSearchEngine].defaultUrl);
+	}
+	ImGui::End();
+}
