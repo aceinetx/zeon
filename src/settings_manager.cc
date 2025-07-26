@@ -1,7 +1,6 @@
 #include "settings_manager.hh"
 #include "zeon.hh"
 #include <filesystem>
-#include <format>
 #include <fstream>
 #include <iostream>
 

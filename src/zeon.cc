@@ -6,19 +6,21 @@
 #include <iostream>
 #include <stdio.h>
 
-std::string z::Zeon::encodeUrlIntoGetParameter(const std::string& value) {
+using namespace z;
+
+std::string Zeon::encodeUrlIntoGetParameter(const std::string& value) {
 	return CefURIEncode(CefString(value), true);
 }
 
-z::Zeon::Zeon() : settingsManager(this) {
+Zeon::Zeon() : settingsManager(this) {
 	settingsManager.load();
 };
 
-z::Zeon::~Zeon() {
+Zeon::~Zeon() {
 	settingsManager.save();
 };
 
-int z::Zeon::OpenTab(const std::string& url) {
+int Zeon::OpenTab(const std::string& url) {
 	auto handler = new RenderHandler(renderer, 1, 1);
 	int w, h;
 	SDL_GetWindowSize(window, &w, &h);
@@ -39,7 +41,7 @@ int z::Zeon::OpenTab(const std::string& url) {
 	return active_tab;
 }
 
-void z::Zeon::CloseTab(int idx) {
+void Zeon::CloseTab(int idx) {
 	if (idx < 0 || idx >= (int)browsers.size())
 		return;
 	browsers[idx]->GetHost()->CloseBrowser(true);
@@ -52,13 +54,13 @@ void z::Zeon::CloseTab(int idx) {
 		active_tab = 0;
 }
 
-void z::Zeon::SwitchTab(int idx) {
+void Zeon::SwitchTab(int idx) {
 	if (idx < 0 || idx >= (int)browsers.size())
 		return;
 	active_tab = idx;
 }
 
-int z::Zeon::Init() {
+int Zeon::Init() {
 	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
 		printf("Error: SDL_Init(): %s\n", SDL_GetError());
 		return -1;
@@ -106,7 +108,7 @@ int z::Zeon::Init() {
 	InitAssets();
 	SetupStyle();
 
-	std::cout << "DEVELOPER NOTE: z::Zeon::Init() assumes CefExecuteProcess is already called\n";
+	std::cout << "DEVELOPER NOTE: Zeon::Init() assumes CefExecuteProcess is already called\n";
 	CefSettings settings;
 
 	{
@@ -130,13 +132,13 @@ int z::Zeon::Init() {
 	return 0;
 }
 
-void z::Zeon::InitAssets() {
+void Zeon::InitAssets() {
 	auto& io = ImGui::GetIO();
 	ImFont* font = io.Fonts->AddFontFromFileTTF("assets/font.otf");
 	IM_ASSERT(font != nullptr);
 }
 
-void z::Zeon::Cleanup() {
+void Zeon::Cleanup() {
 	browsers.clear();
 	browserClients.clear();
 	renderHandlers.clear();
@@ -145,7 +147,7 @@ void z::Zeon::Cleanup() {
 	SDL_Quit();
 }
 
-void z::Zeon::Run() {
+void Zeon::Run() {
 	bool show_demo_window = true;
 	bool show_another_window = false;
 	ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);

@@ -1,10 +1,12 @@
 #include "zeon.hh"
 
+using namespace z;
+
 static constexpr ImVec4 rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 	return ImVec4((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, (float)a / 255.0f);
 }
 
-void z::Zeon::SetupStyle() {
+void Zeon::SetupStyle() {
 	auto& io = ImGui::GetIO();
 	ImGuiStyle* style = &ImGui::GetStyle();
 	ImVec4* colors = style->Colors;

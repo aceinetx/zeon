@@ -3,6 +3,8 @@
 #include "zeondefs.hh"
 #include <iostream>
 
+using namespace z;
+
 static CefBrowserHost::MouseButtonType translateMouseButton(SDL_MouseButtonEvent const& e) {
 	CefBrowserHost::MouseButtonType result;
 	switch (e.button) {
@@ -24,7 +26,7 @@ static CefBrowserHost::MouseButtonType translateMouseButton(SDL_MouseButtonEvent
 	return result;
 }
 
-void z::Zeon::ProcessEvent(SDL_Event& event) {
+void Zeon::ProcessEvent(SDL_Event& event) {
 	auto& io = ImGui::GetIO();
 	ImGui_ImplSDL3_ProcessEvent(&event);
 

@@ -22,28 +22,19 @@ CefRefPtr<CefRenderHandler> z::BrowserClient::GetRenderHandler() {
 	return handler;
 }
 
-// CefLifeSpanHandler methods.
 void z::BrowserClient::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
-	// Must be executed on the UI thread.
 	CEF_REQUIRE_UI_THREAD();
 
 	browser_id = browser->GetIdentifier();
 }
 
 bool z::BrowserClient::DoClose(CefRefPtr<CefBrowser> browser) {
-	// Must be executed on the UI thread.
 	CEF_REQUIRE_UI_THREAD();
 
-	// Closing the main window requires special handling. See the DoClose()
-	// documentation in the CEF header for a detailed description of this
-	// process.
 	if (browser->GetIdentifier() == browser_id) {
-		// Set a flag to indicate that the window close should be allowed.
 		closing = true;
 	}
 
-	// Allow the close. For windowed browsers this will result in the OS close
-	// event being sent.
 	return false;
 }
 
@@ -91,24 +82,21 @@ bool z::BrowserClient::isLoaded() const {
 }
 
 // Intercept popup requests to open in a new tab instead of a new window
-bool z::BrowserClient::OnBeforePopup(CefRefPtr<CefBrowser> browser,
-                                     CefRefPtr<CefFrame> frame,
-                                     int popup_id,
-                                     const CefString& target_url,
-                                     const CefString& target_frame_name,
-                                     WindowOpenDisposition target_disposition,
-                                     bool user_gesture,
-                                     const CefPopupFeatures& popupFeatures,
-                                     CefWindowInfo& windowInfo,
-                                     CefRefPtr<CefClient>& client,
-                                     CefBrowserSettings& settings,
-                                     CefRefPtr<CefDictionaryValue>& extra_info,
-                                     bool* no_javascript_access) {
-    // Only handle if a URL is provided
-    if (!target_url.empty()) {
-        // Open in a new tab (regardless of disposition, or restrict to NEW_FOREGROUND_TAB/NEW_BACKGROUND_TAB/NEW_WINDOW/NEW_POPUP)
-        z::g_zeon->OpenTab(target_url.ToString());
-        return true; // Cancel default popup, we handled it
-    }
-    return false; // Fallback to default behavior
+bool z::BrowserClient::OnBeforePopup(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+																		 int popup_id, const CefString& target_url,
+																		 const CefString& target_frame_name,
+																		 WindowOpenDisposition target_disposition, bool user_gesture,
+																		 const CefPopupFeatures& popupFeatures,
+																		 CefWindowInfo& windowInfo, CefRefPtr<CefClient>& client,
+																		 CefBrowserSettings& settings,
+																		 CefRefPtr<CefDictionaryValue>& extra_info,
+																		 bool* no_javascript_access) {
+	// Only handle if a URL is provided
+	if (!target_url.empty()) {
+		// Open in a new tab (regardless of disposition, or restrict to
+		// NEW_FOREGROUND_TAB/NEW_BACKGROUND_TAB/NEW_WINDOW/NEW_POPUP)
+		z::g_zeon->OpenTab(target_url.ToString());
+		return true; // Cancel default popup, we handled it
+	}
+	return false; // Fallback to default behavior
 }
