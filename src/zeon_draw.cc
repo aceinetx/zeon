@@ -73,6 +73,7 @@ void Zeon::DrawTopBar() {
 		browsers[active_tab]->GetMainFrame()->LoadURL(CefString(ui_url));
 	}
 	ImGui::SameLine();
+	/*
 	if (ImGui::Button("Search w/ duckduckgo")) {
 		std::string text = std::string(ui_url);
 		std::string url = "duckduckgo.com/?t=h_&q=";
@@ -80,6 +81,7 @@ void Zeon::DrawTopBar() {
 		url += "&ia=web";
 		browsers[active_tab]->GetFocusedFrame()->LoadURL(CefString(url));
 	}
+	*/
 	ImGui::End();
 }
 
@@ -115,12 +117,18 @@ void Zeon::DrawTabs() {
 	ImGui::Begin("tabs", nullptr,
 							 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
 									 ImGuiWindowFlags_NoCollapse);
-	int i = 0;
 	for (int i = 0; i < browsers.size(); i++) {
 		auto& browser = browsers[i];
 
-		std::string url = browser->GetMainFrame()->GetURL().ToString();
-		if (ImGui::Button(std::format("{}##tab{}", url, i).c_str())) {
+		std::string tab_label;
+		CefRefPtr<CefNavigationEntry> entry = browser->GetHost()->GetVisibleNavigationEntry();
+		if (entry && entry->IsValid()) {
+			tab_label = entry->GetTitle().ToString();
+		}
+		if (tab_label.empty()) {
+			tab_label = browser->GetMainFrame()->GetURL().ToString();
+		}
+		if (ImGui::Button(std::format("{}##tab{}", tab_label, i).c_str())) {
 			active_tab = i;
 			UpdateURL();
 		}

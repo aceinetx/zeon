@@ -36,9 +36,8 @@ void z::Zeon::ProcessEvent(SDL_Event& event) {
 		browsers[active_tab]->GetHost()->CloseBrowser(false);
 	}
 	if (event.type == SDL_EVENT_WINDOW_RESIZED) {
-		int w, h;
-		SDL_GetWindowSize(window, &w, &h);
-		renderHandlers[active_tab]->resize(w, h - ZEON_TOPBAR_HEIGHT);
+		renderHandlers[active_tab]->resize(event.window.data1, event.window.data2);
+		browsers[active_tab]->GetHost()->WasResized();
 	}
 
 	if (!io.WantCaptureKeyboard) {
@@ -53,8 +52,8 @@ void z::Zeon::ProcessEvent(SDL_Event& event) {
 			cef_event.x = event.button.x;
 			cef_event.y = event.button.y - ZEON_TOPBAR_HEIGHT;
 
-			browsers[active_tab]->GetHost()->SendMouseClickEvent(cef_event, translateMouseButton(event.button), true,
-																							1);
+			browsers[active_tab]->GetHost()->SendMouseClickEvent(
+					cef_event, translateMouseButton(event.button), true, 1);
 			std::cout << "Send mouse button up\n";
 		}
 		if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
@@ -62,8 +61,8 @@ void z::Zeon::ProcessEvent(SDL_Event& event) {
 			cef_event.x = event.button.x;
 			cef_event.y = event.button.y - ZEON_TOPBAR_HEIGHT;
 
-			browsers[active_tab]->GetHost()->SendMouseClickEvent(cef_event, translateMouseButton(event.button), false,
-																							1);
+			browsers[active_tab]->GetHost()->SendMouseClickEvent(
+					cef_event, translateMouseButton(event.button), false, 1);
 			std::cout << "Send mouse button down\n";
 		}
 		if (event.type == SDL_EVENT_MOUSE_MOTION) {
@@ -85,7 +84,7 @@ void z::Zeon::ProcessEvent(SDL_Event& event) {
 
 			CefMouseEvent cef_event;
 			browsers[active_tab]->GetHost()->SendMouseWheelEvent(cef_event, delta_x * scrollSpeed * 10,
-																							delta_y * scrollSpeed * 10);
+																													 delta_y * scrollSpeed * 10);
 		}
 	}
 }

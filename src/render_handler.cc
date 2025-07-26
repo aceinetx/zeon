@@ -21,18 +21,18 @@ void z::RenderHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect)
 
 void z::RenderHandler::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type,
 															 const RectList& dirtyRects, const void* buffer, int w, int h) {
-	std::lock_guard<std::recursive_mutex> lock(texture_mutex);
-	if (texture) {
-		unsigned char* texture_data = NULL;
-		int texture_pitch = 0;
-
-		SDL_LockTexture(texture, 0, (void**)&texture_data, &texture_pitch);
-		memcpy(texture_data, buffer, w * h * 4);
-		SDL_UnlockTexture(texture);
-		// std::cout << "z::RenderHandler::OnPaint: success\n";
-	} else {
-		std::cout << "z::RenderHandler::OnPaint: (texture) == false\n";
+	if (w != width || h != height) {
+		resize(w, h);
 	}
+
+	unsigned char* texture_data = nullptr;
+	int texture_pitch = 0;
+	size_t bufferSize = static_cast<size_t>(w) * static_cast<size_t>(h) * 4;
+
+	std::lock_guard<std::recursive_mutex> lock(texture_mutex);
+	SDL_LockTexture(texture, nullptr, (void**)&texture_data, &texture_pitch);
+	memcpy(texture_data, buffer, bufferSize);
+	SDL_UnlockTexture(texture);
 }
 
 void z::RenderHandler::resize(int w, int h) {
@@ -44,15 +44,16 @@ void z::RenderHandler::resize(int w, int h) {
 
 	width = w;
 	height = h;
-	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_STREAMING, w, h);
+	texture =
+			SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, w, h);
+	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
 	std::cout << "z::RenderHandler::resize: success\n";
 }
 
 void z::RenderHandler::render() {
 	std::lock_guard<std::recursive_mutex> lock(texture_mutex);
-	SDL_FRect destRect = {0, ZEON_TOPBAR_HEIGHT, (float)width,
-												(float)height}; // Destination rectangle
+	SDL_FRect destRect = {0, ZEON_TOPBAR_HEIGHT, (float)width, (float)height};
 	SDL_RenderTexture(renderer, texture, NULL, &destRect);
 	// std::cout << "z::RenderHandler::render: success\n";
 }
