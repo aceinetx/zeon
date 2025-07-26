@@ -12,9 +12,6 @@
 namespace z {
 extern int g_argc;
 extern char** g_argv;
-// clang-format off
-static constexpr const char* urlRegex = "/(?:http[s]?:\\/\\/.)?(?:www\\.)?[-a-zA-Z0-9@%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b(?:[-a-zA-Z0-9@:%_\\+.~#?&\\/\\/=]*)/gm";
-// clang-format on
 
 class Zeon {
 private:
@@ -33,6 +30,19 @@ public:
 	void SwitchTab(int idx);
 
 	CefMainArgs cef_args;
+
+	struct SearchEngine {
+		std::string defaultUrl;
+		std::string name;
+	};
+
+	std::vector<SearchEngine> searchEngines = {
+			{"yandex.ru", "Yandex"},
+			{"duckduckgo.com", "Duck duck go"},
+			{"google.com", "Google"},
+			{"bing.com", "Bing"},
+	};
+	int currentSearchEngine;
 
 	enum {
 		BS_LOADING,

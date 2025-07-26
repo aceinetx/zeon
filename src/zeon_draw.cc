@@ -79,16 +79,29 @@ static void DrawTopBar() {
 }
 
 static void DrawSettings() {
-	ImGui::SetNextWindowPos({0, ZEON_TOPBAR_HEIGHT});
-	ImGui::SetNextWindowSize({350, 200});
+	ImGui::SetNextWindowPos({0, ZEON_TOPBAR_HEIGHT}, ImGuiCond_Once);
+	ImGui::SetNextWindowSize({350, 200}, ImGuiCond_Once);
 	ImGui::Begin("settings", nullptr,
 							 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
 									 ImGuiWindowFlags_NoCollapse);
 	ImGui::SliderFloat("Scroll speed", &g_zeon->scrollSpeed, 1.0f, 20.0f);
+
+	ImGui::Text("Current search engine: %s",
+							g_zeon->searchEngines[g_zeon->currentSearchEngine].name.c_str());
+	int i = 0;
+	for (Zeon::SearchEngine& se : g_zeon->searchEngines) {
+		if (ImGui::Button(se.name.c_str())) {
+			g_zeon->currentSearchEngine = i;
+		}
+		i++;
+	}
+	ImGui::Separator();
+
 	if (ImGui::Button("Show devtools")) {
 		g_zeon->browsers[g_zeon->active_tab]->GetHost()->ShowDevTools(CefWindowInfo(), nullptr,
 																																	CefBrowserSettings(), CefPoint());
 	}
+
 	ImGui::End();
 }
 
@@ -100,7 +113,7 @@ static void UpdateURL() {
 
 static void DrawTabs() {
 	ImGui::SetNextWindowPos({0, ZEON_TOPBAR_HEIGHT}, ImGuiCond_Once);
-	ImGui::SetNextWindowSize({0, 200});
+	ImGui::SetNextWindowSize({0, 200}, ImGuiCond_Once);
 	ImGui::Begin("tabs", nullptr,
 							 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
 									 ImGuiWindowFlags_NoCollapse);
@@ -123,8 +136,7 @@ static void DrawTabs() {
 		}
 	}
 	if (ImGui::Button("+")) {
-		std::string start_url = "file://" + std::string(SDL_GetBasePath()) + "/assets/main.html";
-		g_zeon->OpenTab(start_url);
+		g_zeon->OpenTab(g_zeon->searchEngines[g_zeon->currentSearchEngine].defaultUrl);
 	}
 	ImGui::End();
 }

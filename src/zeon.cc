@@ -1,11 +1,8 @@
 #include "zeon.hh"
-#include "sdl_cef_events.hh"
-#include "zeon_kb.hh"
 #include "zeondefs.hh"
 #include <SDL3/SDL.h>
 #include <cef_app.h>
 #include <cef_parser.h>
-#include <iomanip>
 #include <iostream>
 #include <stdio.h>
 
@@ -34,7 +31,6 @@ int z::Zeon::OpenTab(const std::string& url) {
 	auto browser = CefBrowserHost::CreateBrowserSync(window_info, client, url, browserSettings,
 																									 nullptr, CefRequestContext::GetGlobalContext());
 	browsers.push_back(browser);
-	browser->GetMainFrame()->AddRef();
 	active_tab = browsers.size() - 1;
 	return active_tab;
 }
@@ -126,10 +122,7 @@ int z::Zeon::Init() {
 		return -1;
 	}
 
-	// Remove old single browser/client/handler creation
-	// Instead, open the first tab
-	std::string start_url = "file://" + std::string(SDL_GetBasePath()) + "/assets/main.html";
-	OpenTab(start_url);
+	OpenTab("https://duckduckgo.com");
 	return 0;
 }
 
