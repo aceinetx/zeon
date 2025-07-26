@@ -1,4 +1,7 @@
 #include "zeon.hh"
+#include "sdl_cef_events.hh"
+#include "zeon_kb.hh"
+#include "zeondefs.hh"
 #include <SDL3/SDL.h>
 #include <cef_app.h>
 #include <iostream>
@@ -9,9 +12,6 @@ z::Zeon::Zeon() {};
 z::Zeon::~Zeon() = default;
 
 int z::Zeon::Zeon::Init() {
-	// Setup SDL
-	// [If using SDL_MAIN_USE_CALLBACKS: all code below until the main loop starts would likely be
-	// your SDL_AppInit() function]
 	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
 		printf("Error: SDL_Init(): %s\n", SDL_GetError());
 		return -1;
@@ -41,20 +41,15 @@ int z::Zeon::Zeon::Init() {
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	(void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;	// Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
-	// ImGui::StyleColorsLight();
 
-	// Setup scaling
 	ImGuiStyle& style = ImGui::GetStyle();
-	style.ScaleAllSizes(
-			main_scale); // Bake a fixed style scale. (until we have a solution for dynamic style scaling,
-									 // changing this requires resetting Style + calling this again)
+	style.ScaleAllSizes(main_scale);
+
 	style.FontScaleDpi = main_scale;
-	// Setup Platform/Renderer backends
 	ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
 	ImGui_ImplSDLRenderer3_Init(renderer);
 
@@ -83,8 +78,12 @@ int z::Zeon::Zeon::Init() {
 		return -1;
 	}
 
-	renderHandler = new RenderHandler(renderer, io.DisplaySize.x, io.DisplaySize.y);
-	renderHandler->resize(100, 100);
+	{
+		renderHandler = new RenderHandler(renderer, 1, 1);
+		int w, h;
+		SDL_GetWindowSize(window, &w, &h);
+		renderHandler->resize(w, h - ZEON_TOPBAR_HEIGHT);
+	}
 
 	{
 		CefWindowInfo window_info;
@@ -92,11 +91,12 @@ int z::Zeon::Zeon::Init() {
 		window_info.SetAsWindowless(kNullWindowHandle);
 		window_info.windowless_rendering_enabled = true;
 		browserSettings.background_color = 0xff; // allows for transparency
+		browserSettings.windowless_frame_rate = 60;
 
 		browserClient = new BrowserClient(renderHandler);
 
 		browser = CefBrowserHost::CreateBrowserSync(window_info, browserClient.get(),
-																								"https://www.google.com", browserSettings, nullptr,
+																								"https://duckduckgo.com", browserSettings, nullptr,
 																								CefRequestContext::GetGlobalContext());
 	}
 	return 0;
@@ -104,7 +104,7 @@ int z::Zeon::Zeon::Init() {
 
 void z::Zeon::InitAssets() {
 	auto& io = ImGui::GetIO();
-	ImFont* font = io.Fonts->AddFontFromFileTTF("assets/SFMonoRegular.otf");
+	ImFont* font = io.Fonts->AddFontFromFileTTF("assets/font.otf");
 	IM_ASSERT(font != nullptr);
 }
 
@@ -122,7 +122,7 @@ void z::Zeon::Cleanup() {
 void z::Zeon::Run() {
 	bool show_demo_window = true;
 	bool show_another_window = false;
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 	auto& io = ImGui::GetIO();
 
 	// Main loop
@@ -130,16 +130,9 @@ void z::Zeon::Run() {
 	while (!browserClient->closeAllowed() && !done) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
-			ImGui_ImplSDL3_ProcessEvent(&event);
-			if (event.type == SDL_EVENT_QUIT)
-				done = true;
-			if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED &&
-					event.window.windowID == SDL_GetWindowID(window))
-				done = true;
+			ProcessEvent(event);
 		}
 
-		// [If using SDL_MAIN_USE_CALLBACKS: all code below would likely be your SDL_AppIterate()
-		// function]
 		if (SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED) {
 			SDL_Delay(10);
 			continue;
@@ -152,15 +145,15 @@ void z::Zeon::Run() {
 
 		Draw();
 
-		// Rendering
+		// Renderin
 		ImGui::Render();
 		SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
 		SDL_SetRenderDrawColorFloat(renderer, clear_color.x, clear_color.y, clear_color.z,
 																clear_color.w);
 		CefDoMessageLoopWork();
 		SDL_RenderClear(renderer);
-		ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
 		renderHandler->render();
+		ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
 		SDL_RenderPresent(renderer);
 	}
 }

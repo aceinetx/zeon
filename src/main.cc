@@ -2,6 +2,7 @@
 
 int z::g_argc;
 char** z::g_argv;
+z::Zeon* z::g_zeon;
 
 int main(int argc, char** argv) {
 	z::g_argc = argc;
@@ -13,13 +14,13 @@ int main(int argc, char** argv) {
 		return result;
 	}
 
-	z::Zeon zeon;
-	zeon.cef_args = args;
+	z::g_zeon = new z::Zeon();
+	z::g_zeon->cef_args = args;
 	{
-		int r = zeon.Init();
+		int r = z::g_zeon->Init();
 		if (r != 0)
 			return r;
 	}
-	zeon.Run();
-	zeon.Cleanup();
+	z::g_zeon->Run();
+	z::g_zeon->Cleanup();
 }

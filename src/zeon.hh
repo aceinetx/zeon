@@ -24,9 +24,15 @@ private:
 public:
 	CefMainArgs cef_args;
 
+	enum {
+		BS_LOADING,
+		BS_READY,
+	} BrowserState;
+
 private:
 	void InitAssets();
 	void Draw();
+	void ProcessEvent(SDL_Event& event);
 
 public:
 	Zeon();
@@ -35,4 +41,6 @@ public:
 	void Run();
 	~Zeon();
 };
+
+extern Zeon* g_zeon;
 } // namespace z
