@@ -122,7 +122,7 @@ int z::Zeon::Init() {
 		return -1;
 	}
 
-	OpenTab("https://duckduckgo.com");
+	OpenTab(searchEngines[currentSearchEngine].defaultUrl);
 	return 0;
 }
 
