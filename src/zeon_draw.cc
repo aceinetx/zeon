@@ -1,5 +1,8 @@
+#include "imgui.h"
+#include "uri.hh"
 #include "zeon.hh"
 #include "zeondefs.hh"
+#include <cef_parser.h>
 #include <regex>
 
 using namespace z;
@@ -56,30 +59,16 @@ static void DrawTopBar() {
 	ImGui::SameLine();
 	if (ImGui::InputText("##url", g_zeon->ui_url, sizeof g_zeon->ui_url,
 											 ImGuiInputTextFlags_EnterReturnsTrue)) {
-		if (std::regex_match(g_zeon->ui_url, std::regex(z::urlRegex))) {
-			g_zeon->browser->GetFocusedFrame()->LoadURL(CefString(g_zeon->ui_url));
-		} else {
-			// search
-			std::string text = std::string(g_zeon->ui_url);
-			std::string url = "duckduckgo.com/?t=h_&q=";
-			for (char c : text) {
-				switch (c) {
-				case ' ':
-					url += '+';
-					break;
-				case ':':
-					url += "%3A";
-					break;
-				default:
-					url += c;
-					break;
-				}
-			}
-			url += "&ia=web";
-			g_zeon->browser->GetFocusedFrame()->LoadURL(CefString(url));
-		}
+		g_zeon->browser->GetFocusedFrame()->LoadURL(CefString(g_zeon->ui_url));
 	}
 	ImGui::SameLine();
+	if (ImGui::Button("Search w/ duckduckgo")) {
+		std::string text = std::string(g_zeon->ui_url);
+		std::string url = "duckduckgo.com/?t=h_&q=";
+		url += Zeon::encodeUrlIntoGetParameter(text);
+		url += "&ia=web";
+		g_zeon->browser->GetFocusedFrame()->LoadURL(CefString(url));
+	}
 	ImGui::End();
 }
 
