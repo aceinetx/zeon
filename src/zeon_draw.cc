@@ -1,9 +1,9 @@
 #include "zeon.hh"
 #include "zeondefs.hh"
+#include <regex>
 
 using namespace z;
 
-static char g_url[65535];
 static bool g_show_demo_window = false;
 static bool g_show_settings = false;
 
@@ -18,12 +18,8 @@ static void DrawState(int state) {
 									 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 	switch (state) {
 	case Zeon::BS_LOADING: {
-		std::string url = g_zeon->browser->GetMainFrame()->GetURL().ToString();
-		if (!url.empty()) {
-			ImGui::SetWindowFontScale(1.0f);
-			ImGui::Text("%s", url.c_str());
-			strncpy(g_url, url.c_str(), sizeof url);
-		}
+		std::string url = g_zeon->browser->GetFocusedFrame()->GetURL().ToString();
+		ImGui::Text("%s", url.c_str());
 	} break;
 	case Zeon::BS_READY:
 		break;
@@ -58,8 +54,30 @@ static void DrawTopBar() {
 	}
 
 	ImGui::SameLine();
-	if (ImGui::InputText("##url", g_url, sizeof g_url, ImGuiInputTextFlags_EnterReturnsTrue)) {
-		g_zeon->browser->GetMainFrame()->LoadURL(CefString(g_url));
+	if (ImGui::InputText("##url", g_zeon->ui_url, sizeof g_zeon->ui_url,
+											 ImGuiInputTextFlags_EnterReturnsTrue)) {
+		if (std::regex_match(g_zeon->ui_url, std::regex(z::urlRegex))) {
+			g_zeon->browser->GetFocusedFrame()->LoadURL(CefString(g_zeon->ui_url));
+		} else {
+			// search
+			std::string text = std::string(g_zeon->ui_url);
+			std::string url = "duckduckgo.com/?t=h_&q=";
+			for (char c : text) {
+				switch (c) {
+				case ' ':
+					url += '+';
+					break;
+				case ':':
+					url += "%3A";
+					break;
+				default:
+					url += c;
+					break;
+				}
+			}
+			url += "&ia=web";
+			g_zeon->browser->GetFocusedFrame()->LoadURL(CefString(url));
+		}
 	}
 	ImGui::SameLine();
 	ImGui::End();
