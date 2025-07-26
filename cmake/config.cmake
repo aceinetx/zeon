@@ -3,6 +3,9 @@ include("cmake/DownloadCEF.cmake")
 
 include_directories("imgui" "imgui/backends")
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(CEF_VERSION "138.0.33+g276ed6d+chromium-138.0.7204.169")
 set(CEF_CHANNEL "")
 

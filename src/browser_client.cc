@@ -89,3 +89,26 @@ bool z::BrowserClient::closeAllowed() const {
 bool z::BrowserClient::isLoaded() const {
 	return loaded;
 }
+
+// Intercept popup requests to open in a new tab instead of a new window
+bool z::BrowserClient::OnBeforePopup(CefRefPtr<CefBrowser> browser,
+                                     CefRefPtr<CefFrame> frame,
+                                     int popup_id,
+                                     const CefString& target_url,
+                                     const CefString& target_frame_name,
+                                     WindowOpenDisposition target_disposition,
+                                     bool user_gesture,
+                                     const CefPopupFeatures& popupFeatures,
+                                     CefWindowInfo& windowInfo,
+                                     CefRefPtr<CefClient>& client,
+                                     CefBrowserSettings& settings,
+                                     CefRefPtr<CefDictionaryValue>& extra_info,
+                                     bool* no_javascript_access) {
+    // Only handle if a URL is provided
+    if (!target_url.empty()) {
+        // Open in a new tab (regardless of disposition, or restrict to NEW_FOREGROUND_TAB/NEW_BACKGROUND_TAB/NEW_WINDOW/NEW_POPUP)
+        z::g_zeon->OpenTab(target_url.ToString());
+        return true; // Cancel default popup, we handled it
+    }
+    return false; // Fallback to default behavior
+}

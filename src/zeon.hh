@@ -7,13 +7,11 @@
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
 #include <stdlib.h>
+#include <vector>
 
 namespace z {
 extern int g_argc;
 extern char** g_argv;
-// clang-format off
-static constexpr const char* urlRegex = "/(?:http[s]?:\\/\\/.)?(?:www\\.)?[-a-zA-Z0-9@%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b(?:[-a-zA-Z0-9@:%_\\+.~#?&\\/\\/=]*)/gm";
-// clang-format on
 
 class Zeon {
 private:
@@ -21,12 +19,30 @@ private:
 	SDL_Window* window;
 
 public:
-	CefRefPtr<CefBrowser> browser;
-	CefRefPtr<BrowserClient> browserClient;
-	CefRefPtr<RenderHandler> renderHandler;
+	std::vector<CefRefPtr<CefBrowser>> browsers;
+	std::vector<CefRefPtr<BrowserClient>> browserClients;
+	std::vector<CefRefPtr<RenderHandler>> renderHandlers;
 	CefRefPtr<CefCookieManager> cookieManager;
+	int active_tab = 0;
+	// Tab management
+	int OpenTab(const std::string& url);
+	void CloseTab(int idx);
+	void SwitchTab(int idx);
 
 	CefMainArgs cef_args;
+
+	struct SearchEngine {
+		std::string defaultUrl;
+		std::string name;
+	};
+
+	std::vector<SearchEngine> searchEngines = {
+			{"yandex.ru", "Yandex"},
+			{"duckduckgo.com", "Duck duck go"},
+			{"google.com", "Google"},
+			{"bing.com", "Bing"},
+	};
+	int currentSearchEngine;
 
 	enum {
 		BS_LOADING,
