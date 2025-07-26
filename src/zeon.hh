@@ -57,7 +57,13 @@ public:
 
 private:
 	void InitAssets();
+
+	void DrawState();
+	void DrawTopBar();
+	void DrawSettings();
+	void DrawTabs();
 	void Draw();
+
 	void ProcessEvent(SDL_Event& event);
 	void SetupStyle();
 

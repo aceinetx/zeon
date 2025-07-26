@@ -12,18 +12,24 @@ static bool g_show_demo_window = false;
 static bool g_show_settings = false;
 static bool g_show_tabs = false;
 
-static void DrawState(int state) {
+static void UpdateURL() {
+	strncpy(z::g_zeon->ui_url,
+					g_zeon->browsers[g_zeon->active_tab]->GetMainFrame()->GetURL().ToString().c_str(),
+					sizeof z::g_zeon->ui_url);
+}
+
+void Zeon::DrawState() {
 	static auto& io = ImGui::GetIO();
 	ImGui::SetNextWindowPos({0, io.DisplaySize.y - ZEON_TOPBAR_HEIGHT});
 	ImGui::SetNextWindowSize({0, io.DisplaySize.y});
-	if (state == Zeon::BS_READY)
+	if (BrowserState == BS_READY)
 		return;
 	ImGui::Begin("state", nullptr,
 							 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
 									 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-	switch (state) {
+	switch (BrowserState) {
 	case Zeon::BS_LOADING: {
-		std::string url = g_zeon->browsers[g_zeon->active_tab]->GetFocusedFrame()->GetURL().ToString();
+		std::string url = browsers[active_tab]->GetMainFrame()->GetURL().ToString();
 		ImGui::Text("%s", url.c_str());
 	} break;
 	case Zeon::BS_READY:
@@ -32,7 +38,7 @@ static void DrawState(int state) {
 	ImGui::End();
 }
 
-static void DrawTopBar() {
+void Zeon::DrawTopBar() {
 	static auto& io = ImGui::GetIO();
 	ImGui::SetNextWindowPos({0, -1});
 	ImGui::SetNextWindowSize({io.DisplaySize.x, ZEON_TOPBAR_HEIGHT});
@@ -47,11 +53,11 @@ static void DrawTopBar() {
 
 	ImGui::SameLine();
 	if (ImGui::Button("back")) {
-		g_zeon->browsers[g_zeon->active_tab]->GoBack();
+		browsers[active_tab]->GoBack();
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("forward")) {
-		g_zeon->browsers[g_zeon->active_tab]->GoForward();
+		browsers[active_tab]->GoForward();
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("settings")) {
@@ -63,87 +69,79 @@ static void DrawTopBar() {
 	}
 
 	ImGui::SameLine();
-	if (ImGui::InputText("##url", g_zeon->ui_url, sizeof g_zeon->ui_url,
-											 ImGuiInputTextFlags_EnterReturnsTrue)) {
-		g_zeon->browsers[g_zeon->active_tab]->GetFocusedFrame()->LoadURL(CefString(g_zeon->ui_url));
+	if (ImGui::InputText("##url", ui_url, sizeof ui_url, ImGuiInputTextFlags_EnterReturnsTrue)) {
+		browsers[active_tab]->GetMainFrame()->LoadURL(CefString(ui_url));
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Search w/ duckduckgo")) {
-		std::string text = std::string(g_zeon->ui_url);
+		std::string text = std::string(ui_url);
 		std::string url = "duckduckgo.com/?t=h_&q=";
 		url += Zeon::encodeUrlIntoGetParameter(text);
 		url += "&ia=web";
-		g_zeon->browsers[g_zeon->active_tab]->GetFocusedFrame()->LoadURL(CefString(url));
+		browsers[active_tab]->GetFocusedFrame()->LoadURL(CefString(url));
 	}
 	ImGui::End();
 }
 
-static void DrawSettings() {
+void Zeon::DrawSettings() {
 	ImGui::SetNextWindowPos({0, ZEON_TOPBAR_HEIGHT}, ImGuiCond_Once);
 	ImGui::SetNextWindowSize({350, 200}, ImGuiCond_Once);
 	ImGui::Begin("settings", nullptr,
 							 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
 									 ImGuiWindowFlags_NoCollapse);
-	ImGui::SliderFloat("Scroll speed", &g_zeon->scrollSpeed, 1.0f, 20.0f);
+	ImGui::SliderFloat("Scroll speed", &scrollSpeed, 1.0f, 20.0f);
 
-	ImGui::Text("Current search engine: %s",
-							g_zeon->searchEngines[g_zeon->currentSearchEngine].name.c_str());
+	ImGui::Text("Current search engine: %s", searchEngines[currentSearchEngine].name.c_str());
 	int i = 0;
-	for (Zeon::SearchEngine& se : g_zeon->searchEngines) {
+	for (Zeon::SearchEngine& se : searchEngines) {
 		if (ImGui::Button(se.name.c_str())) {
-			g_zeon->currentSearchEngine = i;
+			currentSearchEngine = i;
 		}
 		i++;
 	}
 	ImGui::Separator();
 
 	if (ImGui::Button("Show devtools")) {
-		g_zeon->browsers[g_zeon->active_tab]->GetHost()->ShowDevTools(CefWindowInfo(), nullptr,
-																																	CefBrowserSettings(), CefPoint());
+		browsers[active_tab]->GetHost()->ShowDevTools(CefWindowInfo(), nullptr, CefBrowserSettings(),
+																									CefPoint());
 	}
 
 	ImGui::End();
 }
 
-static void UpdateURL() {
-	strncpy(z::g_zeon->ui_url,
-					g_zeon->browsers[g_zeon->active_tab]->GetMainFrame()->GetURL().ToString().c_str(),
-					sizeof z::g_zeon->ui_url);
-}
-
-static void DrawTabs() {
+void Zeon::DrawTabs() {
 	ImGui::SetNextWindowPos({0, ZEON_TOPBAR_HEIGHT}, ImGuiCond_Once);
 	ImGui::SetNextWindowSize({0, 200}, ImGuiCond_Once);
 	ImGui::Begin("tabs", nullptr,
 							 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
 									 ImGuiWindowFlags_NoCollapse);
 	int i = 0;
-	for (int i = 0; i < g_zeon->browsers.size(); i++) {
-		auto& browser = g_zeon->browsers[i];
+	for (int i = 0; i < browsers.size(); i++) {
+		auto& browser = browsers[i];
 
 		std::string url = browser->GetMainFrame()->GetURL().ToString();
 		if (ImGui::Button(std::format("{}##tab{}", url, i).c_str())) {
-			g_zeon->active_tab = i;
+			active_tab = i;
 			UpdateURL();
 		}
-		if (g_zeon->browsers.size() > 1) {
+		if (browsers.size() > 1) {
 			ImGui::SameLine();
 			if (ImGui::Button(std::format("x##tab{}", i).c_str())) {
-				g_zeon->CloseTab(i);
+				CloseTab(i);
 				UpdateURL();
 				break;
 			}
 		}
 	}
 	if (ImGui::Button("+")) {
-		g_zeon->OpenTab(g_zeon->searchEngines[g_zeon->currentSearchEngine].defaultUrl);
+		OpenTab(searchEngines[currentSearchEngine].defaultUrl);
 	}
 	ImGui::End();
 }
 
 void Zeon::Draw() {
 	DrawTopBar();
-	DrawState(BrowserState);
+	DrawState();
 	if (g_show_demo_window)
 		ImGui::ShowDemoWindow(nullptr);
 	if (g_show_settings)
