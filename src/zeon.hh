@@ -30,6 +30,8 @@ public:
 		BS_READY,
 	} BrowserState = BS_READY;
 
+	float scrollSpeed = 5.0f;
+
 private:
 	void InitAssets();
 	void Draw();
