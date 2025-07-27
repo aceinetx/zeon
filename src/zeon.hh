@@ -41,10 +41,10 @@ public:
 	};
 
 	std::vector<SearchEngine> searchEngines = {
-			{"yandex.ru", "Yandex"},
 			{"duckduckgo.com", "Duck duck go"},
 			{"google.com", "Google"},
 			{"bing.com", "Bing"},
+			{"yandex.ru", "Yandex"},
 	};
 	int currentSearchEngine;
 
