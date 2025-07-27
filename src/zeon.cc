@@ -32,8 +32,8 @@ int Zeon::OpenTab(const std::string& url) {
 	CefBrowserSettings browserSettings;
 	window_info.SetAsWindowless(kNullWindowHandle);
 	window_info.windowless_rendering_enabled = true;
-	browserSettings.background_color = 0xff;
-	browserSettings.windowless_frame_rate = 60;
+	browserSettings.background_color = 0xff;		// solid color
+	browserSettings.windowless_frame_rate = 60; // smooooooth
 	auto browser = CefBrowserHost::CreateBrowserSync(window_info, client, url, browserSettings,
 																									 nullptr, CefRequestContext::GetGlobalContext());
 	browsers.push_back(browser);
@@ -66,7 +66,7 @@ int Zeon::Init() {
 		return -1;
 	}
 
-	// Create window with SDL_Renderer graphics context
+	// create window with SDL_Renderer graphics context
 	float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
 	SDL_WindowFlags window_flags =
 			SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
@@ -90,8 +90,8 @@ int Zeon::Init() {
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	(void)io;
+	// enable keyboard
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
 	ImGui::StyleColorsDark();
 
@@ -109,8 +109,8 @@ int Zeon::Init() {
 	SetupStyle();
 
 	std::cout << "DEVELOPER NOTE: Zeon::Init() assumes CefExecuteProcess is already called\n";
-	CefSettings settings;
 
+	CefSettings settings;
 	{
 		std::ostringstream ss;
 		ss << SDL_GetBasePath() << "locales/";
@@ -121,7 +121,7 @@ int Zeon::Init() {
 	CefString(&settings.resources_dir_path) = SDL_GetBasePath();
 	CefString(&settings.root_cache_path) = SDL_GetBasePath();
 	settings.no_sandbox = true;
-	settings.windowless_rendering_enabled = true;
+	settings.windowless_rendering_enabled = true; // osr
 
 	bool result = CefInitialize(cef_args, settings, nullptr, nullptr);
 	if (!result) {
@@ -148,13 +148,11 @@ void Zeon::Cleanup() {
 }
 
 void Zeon::Run() {
-	bool show_demo_window = true;
-	bool show_another_window = false;
 	ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 	auto& io = ImGui::GetIO();
 
 	// Main loop
-	bool done = false;
+	done = false;
 	while (!browserClients.empty() && !browserClients[active_tab]->closeAllowed() && !done) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
@@ -173,15 +171,20 @@ void Zeon::Run() {
 
 		Draw();
 
-		// Renderin
+		// Renderin'
 		ImGui::Render();
 		SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
 		SDL_SetRenderDrawColorFloat(renderer, clear_color.x, clear_color.y, clear_color.z,
 																clear_color.w);
+
 		CefDoMessageLoopWork();
+
 		SDL_RenderClear(renderer);
+
+		// ordering makes imgui draw on top of the browser
 		renderHandlers[active_tab]->render();
 		ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+
 		SDL_RenderPresent(renderer);
 	}
 }

@@ -16,7 +16,7 @@ z::RenderHandler::~RenderHandler() {
 
 void z::RenderHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
 	rect = CefRect(0, 0, width, height);
-	std::cout << "z::RenderHandler::GetViewRect: success\n";
+	// std::cout << "z::RenderHandler::GetViewRect: success\n";
 }
 
 void z::RenderHandler::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type,
@@ -31,7 +31,7 @@ void z::RenderHandler::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType t
 
 	std::lock_guard<std::recursive_mutex> lock(texture_mutex);
 	SDL_LockTexture(texture, nullptr, (void**)&texture_data, &texture_pitch);
-	memcpy(texture_data, buffer, bufferSize);
+	memcpy(texture_data, buffer, bufferSize); // blit cef paint data onto the texture
 	SDL_UnlockTexture(texture);
 }
 

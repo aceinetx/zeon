@@ -22,6 +22,8 @@ private:
 	SDL_Window* window;
 	SettingsManager settingsManager;
 
+	bool done = false;
+
 public:
 	std::vector<CefRefPtr<CefBrowser>> browsers;
 	std::vector<CefRefPtr<BrowserClient>> browserClients;

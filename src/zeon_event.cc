@@ -22,7 +22,7 @@ static CefBrowserHost::MouseButtonType translateMouseButton(SDL_MouseButtonEvent
 		result = MBT_RIGHT;
 		break;
 	}
-	std::cout << "translateMouseButton: success\n";
+	// std::cout << "translateMouseButton: success\n";
 	return result;
 }
 
@@ -32,12 +32,15 @@ void Zeon::ProcessEvent(SDL_Event& event) {
 
 	if (event.type == SDL_EVENT_QUIT) {
 		browsers[active_tab]->GetHost()->CloseBrowser(false);
+		done = true;
 	}
 	if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED &&
 			event.window.windowID == SDL_GetWindowID(window)) {
 		browsers[active_tab]->GetHost()->CloseBrowser(false);
+		done = true;
 	}
 	if (event.type == SDL_EVENT_WINDOW_RESIZED) {
+		// resize the browser texture as well
 		renderHandlers[active_tab]->resize(event.window.data1, event.window.data2);
 		browsers[active_tab]->GetHost()->WasResized();
 	}
@@ -45,7 +48,7 @@ void Zeon::ProcessEvent(SDL_Event& event) {
 	if (!io.WantCaptureKeyboard) {
 		if ((event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP)) {
 			handleKeyEvent(event, browsers[active_tab]);
-			std::cout << "Send key ev\n";
+			// std::cout << "Send key ev\n";
 		}
 	}
 
@@ -57,7 +60,7 @@ void Zeon::ProcessEvent(SDL_Event& event) {
 
 			browsers[active_tab]->GetHost()->SendMouseClickEvent(
 					cef_event, translateMouseButton(event.button), true, 1);
-			std::cout << "Send mouse button up\n";
+			// std::cout << "Send mouse button up\n";
 		}
 		if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 			CefMouseEvent cef_event;
@@ -66,7 +69,7 @@ void Zeon::ProcessEvent(SDL_Event& event) {
 
 			browsers[active_tab]->GetHost()->SendMouseClickEvent(
 					cef_event, translateMouseButton(event.button), false, 1);
-			std::cout << "Send mouse button down\n";
+			// std::cout << "Send mouse button down\n";
 		}
 		if (event.type == SDL_EVENT_MOUSE_MOTION) {
 			CefMouseEvent cef_event;

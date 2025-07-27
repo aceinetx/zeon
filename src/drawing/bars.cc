@@ -6,9 +6,10 @@
 using namespace z;
 
 static void UpdateURL() {
-	strncpy(z::g_zeon->ui_url,
+	// update the ui url
+	strncpy(g_zeon->ui_url,
 					g_zeon->browsers[g_zeon->active_tab]->GetMainFrame()->GetURL().ToString().c_str(),
-					sizeof z::g_zeon->ui_url);
+					sizeof g_zeon->ui_url);
 }
 
 void Zeon::DrawTopBar() {
@@ -42,6 +43,7 @@ void Zeon::DrawTopBar() {
 	}
 
 	ImGui::SameLine();
+	// url input
 	if (ImGui::InputText("##url", ui_url, sizeof ui_url, ImGuiInputTextFlags_EnterReturnsTrue)) {
 		browsers[active_tab]->GetMainFrame()->LoadURL(CefString(ui_url));
 	}
@@ -66,16 +68,21 @@ void Zeon::DrawTabsBar() {
 		if (entry && entry->IsValid()) {
 			tab_label = entry->GetTitle().ToString();
 		}
+		/* frame becomes a nullptr just before the browser is closing, so we need to check it with
+		 * frame.get() */
 		if (tab_label.empty() && frame.get()) {
 			tab_label = frame->GetURL().ToString();
 		}
+		/* still empty wtf, make it show "(loading)" */
 		if (tab_label.empty()) {
 			tab_label = "(loading)";
 		}
+
 		if (ImGui::Button(std::format("{}##tab{}", tab_label, i).c_str())) {
 			active_tab = i;
 			UpdateURL();
 		}
+		// don't show the close button if there is only one tab
 		if (browsers.size() > 1) {
 			ImGui::SameLine();
 			if (ImGui::Button(std::format("x##tab{}", i).c_str())) {

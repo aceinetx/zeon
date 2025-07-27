@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
 	g_argv = argv;
 
 	CefMainArgs args(argc, argv);
-	int result = CefExecuteProcess(args, nullptr, nullptr);
+	int result = CefExecuteProcess(args, nullptr, nullptr); // Create CEF Processes
 	if (result >= 0) {
 		return result;
 	}

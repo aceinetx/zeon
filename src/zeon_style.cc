@@ -3,6 +3,7 @@
 using namespace z;
 
 static constexpr ImVec4 rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+	// convert rgba 255 values into 0-1 rgba
 	return ImVec4((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, (float)a / 255.0f);
 }
 

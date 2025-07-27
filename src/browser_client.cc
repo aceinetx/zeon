@@ -43,7 +43,7 @@ void z::BrowserClient::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 
 void z::BrowserClient::OnLoadEnd(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
 																 int httpStatusCode) {
-	std::cout << "OnLoadEnd(" << httpStatusCode << ")" << std::endl;
+	// std::cout << "OnLoadEnd(" << httpStatusCode << ")" << std::endl;
 	loaded = true;
 	z::g_zeon->BrowserState = Zeon::BS_READY;
 	strncpy(z::g_zeon->ui_url, frame->GetURL().ToString().c_str(), sizeof z::g_zeon->ui_url);
@@ -52,7 +52,7 @@ void z::BrowserClient::OnLoadEnd(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFra
 bool z::BrowserClient::OnLoadError(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
 																	 CefLoadHandler::ErrorCode errorCode, const CefString& failedUrl,
 																	 CefString& errorText) {
-	std::cout << "OnLoadError()" << std::endl;
+	// std::cout << "OnLoadError()" << std::endl;
 	loaded = true;
 	z::g_zeon->BrowserState = Zeon::BS_READY;
 	strncpy(z::g_zeon->ui_url, frame->GetURL().ToString().c_str(), sizeof z::g_zeon->ui_url);
@@ -60,7 +60,7 @@ bool z::BrowserClient::OnLoadError(CefRefPtr<CefBrowser> browser, CefRefPtr<CefF
 
 void z::BrowserClient::OnLoadingStateChange(CefRefPtr<CefBrowser> browser, bool isLoading,
 																						bool canGoBack, bool canGoForward) {
-	std::cout << "OnLoadingStateChange()" << std::endl;
+	// std::cout << "OnLoadingStateChange()" << std::endl;
 	if (isLoading) {
 		z::g_zeon->BrowserState = Zeon::BS_LOADING;
 	}
@@ -69,7 +69,7 @@ void z::BrowserClient::OnLoadingStateChange(CefRefPtr<CefBrowser> browser, bool 
 }
 
 void z::BrowserClient::OnLoadStart(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame) {
-	std::cout << "OnLoadStart()" << std::endl;
+	// std::cout << "OnLoadStart()" << std::endl;
 	strncpy(z::g_zeon->ui_url, frame->GetURL().ToString().c_str(), sizeof z::g_zeon->ui_url);
 }
 

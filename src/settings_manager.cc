@@ -17,6 +17,7 @@ void z::SettingsManager::load() {
 		data = json::parse(f);
 		f.close();
 
+		// load settings
 		zeon->scrollSpeed = data["scroll_speed"].template get<float>();
 		zeon->currentSearchEngine = data["search_engine"].template get<int>();
 		std::cout << "z::SettingsManager::load: loaded\n";
@@ -27,6 +28,7 @@ void z::SettingsManager::save() {
 	data["scroll_speed"] = zeon->scrollSpeed;
 	data["search_engine"] = zeon->currentSearchEngine;
 
+	// save settings
 	std::ofstream n(filename);
 	n << data.dump();
 	n.close();
