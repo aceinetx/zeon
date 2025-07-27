@@ -2,11 +2,8 @@
 #include "log.hh"
 #include "zeondefs.hh"
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_error.h>
 #include <cef_app.h>
 #include <cef_parser.h>
-#include <iostream>
-#include <stdio.h>
 
 using namespace z;
 
