@@ -18,8 +18,7 @@ void Zeon::DrawTopBar() {
 
 	ImGui::Begin("zeon", nullptr,
 							 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
-									 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
-									 ImGuiWindowFlags_AlwaysAutoResize);
+									 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
 	ImGui::SetWindowFontScale(1.2f);
 	ImGui::Text("zeon");
@@ -69,6 +68,9 @@ void Zeon::DrawTabsBar() {
 		}
 		if (tab_label.empty() && frame.get()) {
 			tab_label = frame->GetURL().ToString();
+		}
+		if (tab_label.empty()) {
+			tab_label = "(loading)";
 		}
 		if (ImGui::Button(std::format("{}##tab{}", tab_label, i).c_str())) {
 			active_tab = i;
