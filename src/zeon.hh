@@ -56,6 +56,7 @@ public:
 	} BrowserState = BS_READY;
 
 	float scrollSpeed = 5.0f;
+	int maxTabNameLength = 30;
 
 	char ui_url[65535];
 
@@ -75,10 +76,11 @@ public:
 	static std::string encodeUrlIntoGetParameter(const std::string& value);
 
 	Zeon();
+	~Zeon();
+
 	int Init();
 	void Cleanup();
 	void Run();
-	~Zeon();
 };
 
 extern Zeon* g_zeon;

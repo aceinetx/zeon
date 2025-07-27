@@ -10,6 +10,7 @@ void Zeon::DrawSettings() {
 							 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
 									 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::SliderFloat("Scroll speed", &scrollSpeed, 1.0f, 20.0f);
+	ImGui::SliderInt("Max tab name length", &maxTabNameLength, 15, 50);
 
 	ImGui::Text("Current search engine: %s", searchEngines[currentSearchEngine].name.c_str());
 	int i = 0;

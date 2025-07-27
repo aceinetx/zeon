@@ -59,7 +59,7 @@ void Zeon::DrawTabsBar() {
 
 	ImGui::Begin("tabs_bar", nullptr,
 							 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
-									 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+									 ImGuiWindowFlags_NoScrollbar);
 	for (int i = 0; i < browsers.size(); i++) {
 		auto& browser = browsers[i];
 
@@ -77,6 +77,13 @@ void Zeon::DrawTabsBar() {
 		/* still empty wtf, make it show "(loading)" */
 		if (tab_label.empty()) {
 			tab_label = "(loading)";
+		}
+
+		if (tab_label.length() > maxTabNameLength) {
+			tab_label.erase(tab_label.begin() +
+													((maxTabNameLength % 2 == 0) ? maxTabNameLength - 1 : maxTabNameLength),
+											tab_label.end());
+			tab_label += "...";
 		}
 
 		if (ImGui::Button(std::format("{}##tab{}", tab_label, i).c_str())) {
