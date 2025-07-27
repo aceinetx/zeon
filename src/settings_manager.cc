@@ -1,4 +1,5 @@
 #include "settings_manager.hh"
+#include "log.hh"
 #include "zeon.hh"
 #include <filesystem>
 #include <fstream>
@@ -20,7 +21,7 @@ void z::SettingsManager::load() {
 		// load settings
 		zeon->scrollSpeed = data["scroll_speed"].template get<float>();
 		zeon->currentSearchEngine = data["search_engine"].template get<int>();
-		std::cout << "z::SettingsManager::load: loaded\n";
+		INFO("z::SettingsManager::load: loaded");
 	}
 }
 
@@ -32,5 +33,5 @@ void z::SettingsManager::save() {
 	std::ofstream n(filename);
 	n << data.dump();
 	n.close();
-	std::cout << "z::SettingsManager::save: saved\n";
+	INFO("z::SettingsManager::save: saved");
 }

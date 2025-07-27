@@ -1,3 +1,4 @@
+#include "log.hh"
 #include "zeon.hh"
 
 using namespace z;
@@ -11,6 +12,7 @@ int main(int argc, char** argv) {
 	g_argv = argv;
 
 	CefMainArgs args(argc, argv);
+	INFO("Running CefExecuteProcess()");
 	int result = CefExecuteProcess(args, nullptr, nullptr); // Create CEF Processes
 	if (result >= 0) {
 		return result;
@@ -24,6 +26,7 @@ int main(int argc, char** argv) {
 			return r;
 	}
 	g_zeon->Run();
+	INFO("Cleaning up...");
 	g_zeon->Cleanup();
 	delete g_zeon;
 }

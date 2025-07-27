@@ -1,3 +1,4 @@
+#include "log.hh"
 #include "zeon.hh"
 
 using namespace z;
@@ -39,4 +40,6 @@ void Zeon::SetupStyle() {
 	colors[ImGuiCol_ResizeGripActive] = rgba(185, 185, 185, 150);
 
 	colors[ImGuiCol_CheckMark] = rgba(150, 150, 150, 255);
+
+	INFO("Style setup");
 }

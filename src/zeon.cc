@@ -1,6 +1,8 @@
 #include "zeon.hh"
+#include "log.hh"
 #include "zeondefs.hh"
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_error.h>
 #include <cef_app.h>
 #include <cef_parser.h>
 #include <iostream>
@@ -62,7 +64,7 @@ void Zeon::SwitchTab(int idx) {
 
 int Zeon::Init() {
 	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
-		printf("Error: SDL_Init(): %s\n", SDL_GetError());
+		ERROR("SDL_Init(): {}", SDL_GetError());
 		return -1;
 	}
 
@@ -73,13 +75,13 @@ int Zeon::Init() {
 	window = SDL_CreateWindow("Dear ImGui SDL3+SDL_Renderer example", (int)(1280 * main_scale),
 														(int)(720 * main_scale), window_flags);
 	if (window == nullptr) {
-		printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
+		ERROR("SDL_CreateWindow(): {}", SDL_GetError());
 		return -1;
 	}
 	renderer = SDL_CreateRenderer(window, nullptr);
 	SDL_SetRenderVSync(renderer, 1);
 	if (renderer == nullptr) {
-		SDL_Log("Error: SDL_CreateRenderer(): %s\n", SDL_GetError());
+		ERROR("SDL_CreateRenderer(): {}", SDL_GetError());
 		return -1;
 	}
 	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
@@ -108,13 +110,12 @@ int Zeon::Init() {
 	InitAssets();
 	SetupStyle();
 
-	std::cout << "DEVELOPER NOTE: Zeon::Init() assumes CefExecuteProcess is already called\n";
+	INFO("Dev note: Zeon::Init() assumes CefExecuteProcess is already called");
 
 	CefSettings settings;
 	{
 		std::ostringstream ss;
 		ss << SDL_GetBasePath() << "locales/";
-		std::cout << ss.str() << std::endl;
 		CefString(&settings.locales_dir_path) = ss.str();
 	}
 
@@ -125,6 +126,7 @@ int Zeon::Init() {
 
 	bool result = CefInitialize(cef_args, settings, nullptr, nullptr);
 	if (!result) {
+		ERROR("CefInitialize failed: {}", result);
 		return -1;
 	}
 

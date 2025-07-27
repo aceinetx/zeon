@@ -1,4 +1,5 @@
 #include "render_handler.hh"
+#include "log.hh"
 #include "zeondefs.hh"
 #include <iostream>
 
@@ -48,7 +49,7 @@ void z::RenderHandler::resize(int w, int h) {
 			SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, w, h);
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-	std::cout << "z::RenderHandler::resize: success\n";
+	INFO("z::RenderHandler::resize: success");
 }
 
 void z::RenderHandler::render() {
