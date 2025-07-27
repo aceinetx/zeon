@@ -1,5 +1,6 @@
 #include "../zeon.hh"
 #include "../zeondefs.hh"
+#include "imgui.h"
 #include <format>
 #include <iostream>
 
@@ -26,19 +27,19 @@ void Zeon::DrawTopBar() {
 	ImGui::SetWindowFontScale(1.0f);
 
 	ImGui::SameLine();
-	if (ImGui::Button("back")) {
+	if (ImGui::Button("  ")) {
 		browsers[active_tab]->GoBack();
 	}
 	ImGui::SameLine();
-	if (ImGui::Button("forward")) {
+	if (ImGui::Button("  ")) {
 		browsers[active_tab]->GoForward();
 	}
 	ImGui::SameLine();
-	if (ImGui::Button("reload")) {
+	if (ImGui::Button("  ")) {
 		browsers[active_tab]->Reload();
 	}
 	ImGui::SameLine();
-	if (ImGui::Button("settings")) {
+	if (ImGui::Button("  ")) {
 		g_show_settings = !g_show_settings;
 	}
 
@@ -85,7 +86,7 @@ void Zeon::DrawTabsBar() {
 		// don't show the close button if there is only one tab
 		if (browsers.size() > 1) {
 			ImGui::SameLine();
-			if (ImGui::Button(std::format("x##tab{}", i).c_str())) {
+			if (ImGui::Button(std::format("  ##tab{}", i).c_str())) {
 				CloseTab(i);
 				UpdateURL();
 				break;
@@ -93,7 +94,7 @@ void Zeon::DrawTabsBar() {
 		}
 		ImGui::SameLine();
 	}
-	if (ImGui::Button("+")) {
+	if (ImGui::Button("  ")) {
 		OpenTab(searchEngines[currentSearchEngine].defaultUrl);
 	}
 	ImGui::End();

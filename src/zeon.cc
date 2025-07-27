@@ -136,8 +136,25 @@ int Zeon::Init() {
 
 void Zeon::InitAssets() {
 	auto& io = ImGui::GetIO();
-	ImFont* font = io.Fonts->AddFontFromFileTTF("assets/font.otf");
+
+	ImVector<ImWchar> ranges;
+	ImFontGlyphRangesBuilder builder;
+	builder.AddText("");
+	builder.AddText(
+			"1234567890~`QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm ,.!@#$%^&*():\"'[]{}\\/");
+	builder.AddRanges(io.Fonts->GetGlyphRangesCyrillic());
+	builder.AddRanges(io.Fonts->GetGlyphRangesChineseFull());
+	builder.AddRanges(io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+	builder.AddRanges(io.Fonts->GetGlyphRangesGreek());
+	builder.AddRanges(io.Fonts->GetGlyphRangesJapanese());
+	builder.AddRanges(io.Fonts->GetGlyphRangesKorean());
+	builder.AddRanges(io.Fonts->GetGlyphRangesThai());
+	builder.AddRanges(io.Fonts->GetGlyphRangesVietnamese());
+	builder.BuildRanges(&ranges);
+
+	ImFont* font = io.Fonts->AddFontFromFileTTF("assets/font.otf", 20.5f, nullptr, ranges.Data);
 	IM_ASSERT(font != nullptr);
+	io.Fonts->Build();
 }
 
 void Zeon::Cleanup() {
