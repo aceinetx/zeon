@@ -8,7 +8,7 @@ void Zeon::DrawSettings() {
 	ImGui::SetNextWindowSize({350, 200}, ImGuiCond_Once);
 	ImGui::Begin("settings", nullptr,
 							 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
-									 ImGuiWindowFlags_NoCollapse);
+									 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::SliderFloat("Scroll speed", &scrollSpeed, 1.0f, 20.0f);
 
 	ImGui::Text("Current search engine: %s", searchEngines[currentSearchEngine].name.c_str());

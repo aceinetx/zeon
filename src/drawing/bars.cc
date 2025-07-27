@@ -18,7 +18,8 @@ void Zeon::DrawTopBar() {
 
 	ImGui::Begin("zeon", nullptr,
 							 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
-									 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+									 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
+									 ImGuiWindowFlags_AlwaysAutoResize);
 
 	ImGui::SetWindowFontScale(1.2f);
 	ImGui::Text("zeon");
@@ -31,6 +32,10 @@ void Zeon::DrawTopBar() {
 	ImGui::SameLine();
 	if (ImGui::Button("forward")) {
 		browsers[active_tab]->GoForward();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("reload")) {
+		browsers[active_tab]->Reload();
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("settings")) {
