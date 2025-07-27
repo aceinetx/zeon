@@ -48,6 +48,7 @@ void Zeon::ProcessEvent(SDL_Event& event) {
 			std::cout << "Send key ev\n";
 		}
 	}
+
 	if (!io.WantCaptureMouse) {
 		if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
 			CefMouseEvent cef_event;
@@ -68,11 +69,13 @@ void Zeon::ProcessEvent(SDL_Event& event) {
 			std::cout << "Send mouse button down\n";
 		}
 		if (event.type == SDL_EVENT_MOUSE_MOTION) {
-			CefMouseEvent cef_event;
-			cef_event.x = event.motion.x;
-			cef_event.y = event.motion.y - ZEON_TOPBAR_HEIGHT;
+			if (event.motion.y >= ZEON_TOPBAR_HEIGHT) {
+				CefMouseEvent cef_event;
+				cef_event.x = event.motion.x;
+				cef_event.y = event.motion.y - ZEON_TOPBAR_HEIGHT;
 
-			browsers[active_tab]->GetHost()->SendMouseMoveEvent(cef_event, false);
+				browsers[active_tab]->GetHost()->SendMouseMoveEvent(cef_event, false);
+			}
 		}
 		if (event.type == SDL_EVENT_MOUSE_WHEEL) {
 			int delta_x = event.wheel.x;

@@ -1,6 +1,7 @@
 #include "../zeon.hh"
 #include "../zeondefs.hh"
 #include <format>
+#include <iostream>
 
 using namespace z;
 
@@ -57,11 +58,12 @@ void Zeon::DrawTabsBar() {
 
 		std::string tab_label;
 		CefRefPtr<CefNavigationEntry> entry = browser->GetHost()->GetVisibleNavigationEntry();
+		CefRefPtr<CefFrame> frame = browser->GetFocusedFrame();
 		if (entry && entry->IsValid()) {
 			tab_label = entry->GetTitle().ToString();
 		}
-		if (tab_label.empty()) {
-			tab_label = browser->GetMainFrame()->GetURL().ToString();
+		if (tab_label.empty() && frame.get()) {
+			tab_label = frame->GetURL().ToString();
 		}
 		if (ImGui::Button(std::format("{}##tab{}", tab_label, i).c_str())) {
 			active_tab = i;
