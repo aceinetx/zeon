@@ -76,7 +76,7 @@ int Zeon::Init() {
 		return -1;
 	}
 	renderer = SDL_CreateRenderer(window, nullptr);
-	SDL_SetRenderVSync(renderer, 1);
+	SDL_SetRenderVSync(renderer, 0);
 	if (renderer == nullptr) {
 		ERROR("SDL_CreateRenderer(): {}", SDL_GetError());
 		return -1;
